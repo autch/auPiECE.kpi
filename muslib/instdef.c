@@ -25,7 +25,7 @@
 
 
 
-#include "musdef.h"
+#include <musdef.h>
 
 extern INST i_square0;
 extern INST i_saw0;

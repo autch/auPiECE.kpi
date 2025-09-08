@@ -1,4 +1,4 @@
-#include "../musdef.h"
+#include <musdef.h>
 
 static const signed char wdi_TOMM1[] = {
 0,1,0,1,0,1,0,1,

@@ -4,17 +4,22 @@ include makefile.flags
 
 TARGET = auPiECE.kpi
 
-all: $(TARGET)
-
-include makefile.dep makefile.files
+include makefile.files
 
 $(TARGET): $(OBJS) $(DEF)
 	$(MAKEDLL)
+
+all: $(TARGET)
+
+include makefile.dep
+
 clean:
-	rm -f *$(OBJEXT) muslib/*$(OBJEXT) muslib/wave/*$(OBJEXT)
+	rm -f *$(OBJEXT) muslib/*$(OBJEXT) $(WAVE)*$(OBJEXT) *.map *.tds
 install:
-	cp $(TARGET) $(KBMPLAY)
-binarc:
-	zip -9j auPiECE_kpi-binary.zip auPiECE.kpi doc/readme.txt
-srcarc: clean
-	zip -9r auPiECE_kpi-source.zip * -x *.zip
+	cp $(TARGET) $(DOC) $(KBMPLAY)
+
+binarc: $(TARGET)
+	zip -9j auPiECE_kpi-binary.zip $(TARGET) $(DOC) -x compile.txt
+srcarc:
+	zip -9r auPiECE_kpi-source.zip * -x *.zip -x *$(OBJEXT)
+arc: binarc srcarc

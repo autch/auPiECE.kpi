@@ -1,4 +1,4 @@
-#include "../musdef.h"
+#include <musdef.h>
 
 static const signed char wdi_CYMBD[] = {
 1,0,1,-2,2,-11,-12,-8,

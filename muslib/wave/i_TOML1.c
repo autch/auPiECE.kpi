@@ -1,4 +1,4 @@
-#include "../musdef.h"
+#include <musdef.h>
 
 static const signed char wdi_TOML1[] = {
 0,1,9,4,-3,65,89,68,

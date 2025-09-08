@@ -1,17 +1,14 @@
-.PHONY: all clean install binarc srcarc
+.PHONY: all clean install binarc srcarc arc diff patch patarc unpatch
 
-KBMPLAY=/cygdrive/c/program\ files/kbmedia\ player/plugins/autch/auPiECE/
+KBMPLAY=c:/program\ files/kbmedia\ player/plugins/autch/auPiECE/
 
 ifeq ($(COMPILER),cygwin)
   OBJEXT=.o
   ENVFLAGS = -mno-cygwin
-  CFLAGS = -O3 -fomit-frame-pointer
+  CFLAGS = -O3 -fomit-frame-pointer -Imuslib
   WFLAGS = -Wall -Werror
   DLLFLAGS = --target=i386-mingw32 -k --add-stdcall-alias
   DBGFLAGS = -s
-
-  IMPLIB = auPiECE.a
-  DEF = auPiECE.def
 
   CC = gcc
   CXX = g++
@@ -24,13 +21,10 @@ else
 ifeq ($(COMPILER),borland)
   OBJEXT=.obj
   ENVFLAGS = -q
-  CFLAGS = -O2vc -ff -X -v- -RT-
+  CFLAGS = -O2vc -ff -X -RT- -Imuslib
   WFLAGS = -w-8057
   DLLFLAGS = /C /c /Tpd /Gn /q /v-
-  DBGFLAGS = 
-
-  IMPLIB = auPiECE.lib
-  DEF = auPiECE.def
+  DBGFLAGS = -v-
 
   CC = bcc32
   CXX = bcc32
@@ -43,7 +37,7 @@ ifeq ($(COMPILER),borland)
 endif
 endif
 
-.SUFFIXES: .c $(OBJEXT) .dll .kpi .h
+.SUFFIXES: .c $(OBJEXT) .dll .kpi .h .cpp
 
 .c$(OBJEXT):
 	$(CC) $(COMPILEONLY) $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) $(OUTPUT)$@ $<

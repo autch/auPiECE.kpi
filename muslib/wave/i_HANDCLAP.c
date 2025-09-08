@@ -1,4 +1,4 @@
-#include "../musdef.h"
+#include <musdef.h>
 
 static const signed char wdi_HANDCLAP[] = {
 0,-1,-1,-1,-1,-1,-1,-1,

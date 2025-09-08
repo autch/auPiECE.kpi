@@ -26,6 +26,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 KMPMODULE* WINAPI kmp_GetTestModule()
 {
 	static const char *Exts[] = {".pmd", NULL};
+//	static const char *Exts[] = {".pmd", ".ppx", NULL};
 
 	static KMPMODULE kpiInfoBlock =
 	{
@@ -34,13 +35,14 @@ KMPMODULE* WINAPI kmp_GetTestModule()
 		"Copyright (c) 2001 - 2003, AQUAPLUS Co., Ltd. / OeRSTED, Inc. / Yui N. / S. Kino. all rights reserved.  ",
 															// const char	*pszCopyright;
 		"P/ECE pmd sequence decoder plugin for KbMedia Player",
+//		"P/ECE audio decoder plugin for KbMedia Player",
 															// const char	*pszDescription;
 		Exts,											// const char	**ppszSupportExts;
 		0,												// DWORD dwReentrant;
 		kpiInit,									// void (WINAPI *Init)(void);
 		kpiDeinit,								// void (WINAPI *Deinit)(void);
 		kpiOpen,									// HKMP (WINAPI *Open)(const char *cszFileName, SOUNDINFO *pInfo);
-		NULL, //kpiOpenFromBuffer,				// HKMP (WINAPI *OpenFromBuffer)(const BYTE *Buffer, DWORD dwSize, SOUNDINFO *pInfo);
+		NULL,	//kpiOpenFromBuffer,				// HKMP (WINAPI *OpenFromBuffer)(const BYTE *Buffer, DWORD dwSize, SOUNDINFO *pInfo);
 		kpiClose,									// void (WINAPI *Close)(HKMP hKMP);
 		kpiRender,								// DWORD (WINAPI *Render)(HKMP hKMP, BYTE* Buffer, DWORD dwSize);
 		kpiSetPosition						// DWORD (WINAPI *SetPosition)(HKMP hKMP, DWORD dwPos);

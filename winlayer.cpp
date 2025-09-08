@@ -4,8 +4,12 @@
 // by Yui N. / S. Kino.
 //
 // v1.00	2003.2.21		Yui N.		初版
-// v1.10	2003.2.23		S. Kino.	可変サンプリングレート対応
+// v1.01	2003.2.23		S. Kino.	可変サンプリングレート対応
 //															（Kb の再生周波数要求に適応するわけではない）
+// v1.02			〃			Yui N,		ループしない曲で，演奏終了を検出できるようにした
+//															（しかしまだ曲長計算は実装されていない）
+// v1.03	2003.2.26		Yui N,		Kb の再生周波数要求に応じるようになった
+// v1.04	2003.3.07		Yui N,		簡単なフォーマットチェックを行うようにした
 ///////////////////////////////////////////////////////////
 
 
@@ -39,7 +43,7 @@ private:
 public:
 	AuPIECEKPI();
 	~AuPIECEKPI();
-	BOOL Open(const char *cszFileName);
+	BOOL Open(const char *cszFileName, SOUNDINFO *pInfo);
 	void Close();
 	void SetpBuffer(signed short *pNew);
 	signed short *GetpBuffer();
@@ -48,13 +52,24 @@ public:
 	DecoderStatus GetStatus();
 };
 
+class AuPPXDecoder
+{
+};
+
 // 唯一のインスタンス
 AuPIECEKPI *Decoder;
 PCEWAVEINFO *pWave;
 
-double conv_num; // SK : 16KHz に対する設定周波数の割合（muslib も参照する）
+double conv_num;							// SK : 16KHz に対する設定周波数の割合（muslib も参照する）
 long FS, FS2, MCOUNT, FOFS;		// Yui: musdef.h から移してきたグローバル変数
+long defaultFS = 44100;				// Yui: ini にも Kb からも周波数指定がなかったときのデフォルト
+															// オーバーライドされる可能性がある。
 HANDLE myhModule;
+char INIfilename[1024];
+// SK : muslib の可変周波数化に伴う、各種グローバル変数
+extern long VOLS, ENVSTART, ENVSTOP, ENVRR;
+
+extern unsigned char finish;	// mus.c
 
 // P/ECE カーネル API エントリポイント
 int pceWaveDataOut(int ch, PCEWAVEINFO *pwave)
@@ -70,14 +85,10 @@ int pceWaveDataOut(int ch, PCEWAVEINFO *pwave)
 // 以下，kpi エントリポイント
 void WINAPI kpiInit(void)
 {
-	char filename[1024];
-
 	Decoder = new AuPIECEKPI;
 
-	GetModuleFileName((HMODULE)myhModule, filename, 1024);
-	PathRenameExtension(filename, ".ini");
-	FS = GetPrivateProfileInt("auP/ECE", "SamplingFrequency", 44100, filename);
-	FS *= 2;
+	GetModuleFileName((HMODULE)myhModule, INIfilename, 1024);
+	PathRenameExtension(INIfilename, ".ini");
 }
 
 void WINAPI kpiDeinit(void)
@@ -88,35 +99,8 @@ void WINAPI kpiDeinit(void)
 HKMP WINAPI kpiOpen(const char *cszFileName, SOUNDINFO *pInfo)
 {
 	if(pInfo == NULL)	return NULL;
-	if(Decoder->Open(cszFileName) == TRUE)
-	{
-		// SK : muslib の可変周波数化に伴う、各種グローバル変数の初期化
-		extern long VOLS, ENVSTART, ENVSTOP, ENVRR;
-
-		// FS = 88200;		// Yui: ini ファイルによる設定変更に対応させる
-		FS2 = FS / 2;
-		MCOUNT = (long)(FS2 / 128.0 * 2.5 * 16.0 + 0.5);
-		FOFS = (long)(auLog(FS2) / auLog(2.0) * 12.0 * 256.0 + 0.5);		// Yui: 自前 Log()
-
-		conv_num = 16000.0 / FS2;
-
-		VOLS = 1;
-		ENVSTART = (long)(((-4 * 12 * 256) << VOLS) * conv_num);
-		ENVSTOP = (long)(((-10 * 12 * 256) << VOLS) * conv_num);
-		ENVRR = (long)((4000 << VOLS) * conv_num);
-		// SK : ここまで
-
-		pInfo->dwSamplesPerSec = FS2;				//サンプリング周波数(44100, 22050 など)
-		pInfo->dwChannels = 1;							//チャンネル数( mono = 1, stereo = 2)
-		pInfo->dwBitsPerSample = 16;				//量子化ビット数( 8 or 16)
-		pInfo->dwLength = 0xffffffff;				//曲の長さ（SPC のように計算不可能な場合は 0xFFFFFFFF）
-		pInfo->dwSeekable = 0;							//シークをサポートしている場合は 1、しない場合は 0
-		pInfo->dwUnitRender = 128 * sizeof(unsigned short);					//Render 関数の第３引数はこの値の倍数が渡される（どんな値でも良い場合は 0）
-		pInfo->dwReserved1 = 0;							//常に 0
-		pInfo->dwReserved2 = 0;							//常に 0
-		Decoder->Start();
+	if(Decoder->Open(cszFileName, pInfo) == TRUE)
 		return Decoder;											// hKMP をまったく使わない超手抜き実装（ぉ
-	}
 	else
 		return NULL;
 }
@@ -135,13 +119,13 @@ void WINAPI kpiClose(HKMP hKMP)
 
 DWORD WINAPI kpiRender(HKMP hKMP, BYTE* Buffer, DWORD dwSize)
 {
-	if(Buffer == NULL || hKMP == NULL)	return 0;
+	if(hKMP == NULL)	return 0;
 	//if(Decoder->GetStatus() == emOpened)	Decoder->Start();
 	if(Decoder->GetpBuffer() == NULL) return 0;
 
-	CopyMemory(Buffer, Decoder->GetpBuffer(), dwSize);
+	if(Buffer != NULL)	CopyMemory(Buffer, Decoder->GetpBuffer(), dwSize);
 	pWave->pfEndProc(pWave);
-	return dwSize;
+	return (finish == 0) ? dwSize : 0;
 }
 
 DWORD WINAPI kpiSetPosition(HKMP hKMP, DWORD dwPos)
@@ -199,7 +183,7 @@ void AuPIECEKPI::Close()
 	m_status = emClosed;
 }
 
-BOOL AuPIECEKPI::Open(const char *cszFileName)
+BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 {
 	HANDLE hFile;
 	DWORD fsize, dwBytesRead;
@@ -221,6 +205,51 @@ BOOL AuPIECEKPI::Open(const char *cszFileName)
 
 		CloseHandle(hFile);
 	}
+	else
+		return FALSE;
+
+	{
+		// フォーマットチェック
+		BYTE first, second;
+
+		first = *m_pseq;	second = *(m_pseq + 1);
+		if(first == 0x00)
+		{
+			if(second > 0x0f)
+				return FALSE;
+		}
+		else
+			if(first > 0x0f)
+				return FALSE;
+	}
+
+	defaultFS = GetPrivateProfileInt("auP/ECE", "SamplingFrequency", 44100, INIfilename);
+	if(defaultFS <= 0)	defaultFS = 44100;
+	// SK : muslib の可変周波数化に伴う、各種グローバル変数の初期化
+	FS = pInfo->dwSamplesPerSec * 2;
+	if(FS == 0) FS = defaultFS * 2;
+	// FS = 88200;		// Yui: ini ファイルによる設定変更に対応させる
+	FS2 = FS / 2;
+	MCOUNT = (long)(FS2 / 128.0 * 2.5 * 16.0 + 0.5);
+	FOFS = (long)(auLog(FS2) / auLog(2.0) * 12.0 * 256.0 + 0.5);		// Yui: 自前 Log()
+
+	conv_num = 16000.0 / FS2;
+
+	VOLS = 1;
+	ENVSTART = (long)(((-4 * 12 * 256) << VOLS) * conv_num);
+	ENVSTOP = (long)(((-10 * 12 * 256) << VOLS) * conv_num);
+	ENVRR = (long)((4000 << VOLS) * conv_num);
+	// SK : ここまで
+
+	pInfo->dwSamplesPerSec = FS2;				//サンプリング周波数(44100, 22050 など)
+	pInfo->dwChannels = 1;							//チャンネル数( mono = 1, stereo = 2)
+	pInfo->dwBitsPerSample = 16;				//量子化ビット数( 8 or 16)
+	pInfo->dwLength = 0xffffffff;				//曲の長さ（SPC のように計算不可能な場合は 0xFFFFFFFF）
+	pInfo->dwSeekable = 0;							//シークをサポートしている場合は 1、しない場合は 0
+	pInfo->dwUnitRender = 128 * sizeof(unsigned short);					//Render 関数の第３引数はこの値の倍数が渡される（どんな値でも良い場合は 0）
+	pInfo->dwReserved1 = 0;							//常に 0
+	pInfo->dwReserved2 = 0;							//常に 0
+	Decoder->Start();
 
 	m_pbuffer = NULL;
 	m_status = emOpened;

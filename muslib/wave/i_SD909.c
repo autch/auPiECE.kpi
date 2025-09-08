@@ -1,4 +1,4 @@
-#include "../musdef.h"
+#include <musdef.h>
 
 static const signed char wdi_SD909[] = {
 0,-1,-2,-3,-4,-4,-5,-5,

@@ -45,7 +45,7 @@ extern INST *inst[];
 static signed short wavebuff[BLKN][BLKS];
 static volatile unsigned char blkip;
 static volatile unsigned char blkop;
-static unsigned char finish;
+unsigned char finish;		// Yui: winlayer.cpp ‚©‚çQÆ‚·‚é‚½‚ß static ‚ğ‚Í‚¸‚µ‚½
 
 static PCEWAVEINFO waveinfo[BLKN];
 
