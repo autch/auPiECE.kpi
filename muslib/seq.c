@@ -97,7 +97,7 @@ void StartSeq( unsigned char *seqptr )
 		SetVol( &psw->mdwk, 127 - i*16 );
 		// yui: ビブラート初期化
 		SetVib( &psw->mdwk, 0, 0, 0, 0);
-		psw->dtn = 0;		// デチューン初期化
+		psw->dtn = 0;			// yui: デチューン初期化
 	}
 	for ( ; i < MAXSEQ; i++ ) {
 		SEQWK *psw = seqwk + i;

@@ -8,7 +8,7 @@
 //              Third Party Programs
 //
 //
-// PIECE LIBRARY : auPiECE.kpi : Ver 1.07
+// PIECE LIBRARY : auPiECE.kpi : Ver 1.08
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
 // Copyright (c)2003 Yui N.
@@ -29,6 +29,7 @@
 //  v1.05 2003.03.07 Yui N.
 //  v1.06 2003.03.24 Yui N.
 //  v1.07 2003.05.03 Yui N.
+//  v1.08 2003.05.07 Yui N.
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
@@ -66,6 +67,8 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 			そこで演奏終了するようにした（ぉ
 	Version 1.06	のこも Decoder でデコードできないバグを退治
 	Version 1.07	ヴィブラートとデチューンが初期化されない仕様を改良
+	Version 1.08	はらやんさん（http://hara-yan-web.hp.infoseek.co.jp/）
+			のプチノイズ対策を取り込み
 
 ライセンスについて
 	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースにパッチを当

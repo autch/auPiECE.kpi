@@ -23,6 +23,7 @@
 //  v1.00 2001.11.09 MIO.H
 //  v1.01 2003.02.23 S.Kino.	可変周波数に対応
 //  v1.02 2003   ?   Yui N.		演奏終了を検出できるようにした
+//  v1.03 2003.05.07 Yui N.		はらやんさんのプチノイズ対策を実装
 //
 
 
@@ -483,7 +484,7 @@ void PlayMusic( unsigned char *seq )
 		PCEWAVEINFO *pwi;
 		int n = blkip+1;
 		pwi = waveinfo + blkip;
-		ZeroMemory(wavebuff + blkip, BLKS);
+		ZeroMemory(wavebuff + blkip, 2*BLKS);		// yui: はらやんさんによるプチノイズ対策
 		pwi->pData = wavebuff+blkip;
 		pwi->len = BLKS;
 		pwi->type = PW_TYPE_16BITPCM|PW_TYPE_CONT;
