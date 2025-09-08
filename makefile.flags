@@ -1,0 +1,17 @@
+.PHONY: all clean install binarc srcarc
+.SUFFIXES: .c .o .dll .kpi .h
+
+ENVFLAGS = -mno-cygwin
+CFLAGS = -O3 -fomit-frame-pointer
+WFLAGS = -Wall -Werror
+DLLFLAGS = --target=i386-mingw32 -k --add-stdcall-alias
+DBGFLAGS = -s
+
+IMPLIB = auPiECE.a
+DEF = auPiECE.def
+KBMPLAY=/cygdrive/c/Program\ Files/KbMedia\ Player/
+
+.c.o:
+	gcc -c $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) -o $@ $<
+.cpp.o:
+	g++ -c $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) -o $@ $<

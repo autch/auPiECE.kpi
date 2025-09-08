@@ -1,0 +1,13 @@
+# file macros
+
+WAVE=muslib/wave
+
+WAVEDATA = $(WAVE)/i_BD909.o $(WAVE)/i_HC909.o $(WAVE)/i_SDGATE.o \
+	$(WAVE)/i_TOMM1.o $(WAVE)/i_CYMBD.o $(WAVE)/i_HO909.o \
+	$(WAVE)/i_TOMH1.o $(WAVE)/i_HANDCLAP.o $(WAVE)/i_SD909.o \
+	$(WAVE)/i_TOML1.o
+MUSLIB = muslib/exp12.o muslib/instdef.o muslib/mus.o muslib/seq.o \
+	muslib/wavetable.o
+DLLOBJ=dllexports.o winlayer.o
+
+OBJS = $(MUSLIB) $(WAVEDATA) $(DLLOBJ)
