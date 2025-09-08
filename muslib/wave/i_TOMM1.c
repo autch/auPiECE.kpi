@@ -402,5 +402,5 @@ const INST i_TOMM1 = {
 	PITCH_C4,
 	(signed char *)wdi_TOMM1,
 	0,
-	3116<<14,
+	(3116-73)<<14,
 };

@@ -1237,5 +1237,5 @@ const INST i_CYMBD = {
 	PITCH_C4,
 	(signed char *)wdi_CYMBD,
 	0,
-	9795<<14,
+	(9795-68)<<14,
 };
