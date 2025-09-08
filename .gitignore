@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+*.kpi
+Debug/
+Release/
+
+build*/
