@@ -1,3 +1,5 @@
+COMPILER=borland
+
 include makefile.flags
 
 TARGET = auPiECE.kpi
@@ -7,11 +9,11 @@ all: $(TARGET)
 include makefile.dep makefile.files
 
 $(TARGET): $(OBJS) $(DEF)
-	dllwrap $(DBGFLAGS) $(ENVFLAGS) $(DLLFLAGS) --dllname=$@ --def=$(DEF) $(OBJS) -lstdc++
+	$(MAKEDLL)
 clean:
-	rm -f *.o muslib/*.o muslib/wave/*.o
+	rm -f *$(OBJEXT) muslib/*$(OBJEXT) muslib/wave/*$(OBJEXT)
 install:
-	cp $(TARGET) $(KBMPLAY)Plugins/
+	cp $(TARGET) $(KBMPLAY)
 binarc:
 	zip -9j auPiECE_kpi-binary.zip auPiECE.kpi doc/readme.txt
 srcarc: clean

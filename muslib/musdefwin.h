@@ -1,7 +1,9 @@
 // とりあえずコピペ
 
-// サウンド関係のサービス
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
+// サウンド関係のサービス
 #define PW_TYPE_8BITPCM    0
 #define PW_TYPE_16BITPCM   1
 #define PW_TYPE_4BITADPCM  2

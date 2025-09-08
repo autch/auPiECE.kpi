@@ -1,17 +1,51 @@
 .PHONY: all clean install binarc srcarc
-.SUFFIXES: .c .o .dll .kpi .h
 
-ENVFLAGS = -mno-cygwin
-CFLAGS = -O3 -fomit-frame-pointer
-WFLAGS = -Wall -Werror
-DLLFLAGS = --target=i386-mingw32 -k --add-stdcall-alias
-DBGFLAGS = -s
+KBMPLAY=/cygdrive/c/program\ files/kbmedia\ player/plugins/autch/auPiECE/
 
-IMPLIB = auPiECE.a
-DEF = auPiECE.def
-KBMPLAY=/cygdrive/c/Program\ Files/KbMedia\ Player/
+ifeq ($(COMPILER),cygwin)
+  OBJEXT=.o
+  ENVFLAGS = -mno-cygwin
+  CFLAGS = -O3 -fomit-frame-pointer
+  WFLAGS = -Wall -Werror
+  DLLFLAGS = --target=i386-mingw32 -k --add-stdcall-alias
+  DBGFLAGS = -s
 
-.c.o:
-	gcc -c $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) -o $@ $<
-.cpp.o:
-	g++ -c $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) -o $@ $<
+  IMPLIB = auPiECE.a
+  DEF = auPiECE.def
+
+  CC = gcc
+  CXX = g++
+
+  OUTPUT=-o 
+  COMPILEONLY=-c
+
+  MAKEDLL = dllwrap $(DBGFLAGS) $(ENVFLAGS) $(DLLFLAGS) --dllname=$@ --def=$(DEF) $(OBJS) -lshlwapi -lstdc++
+else
+ifeq ($(COMPILER),borland)
+  OBJEXT=.obj
+  ENVFLAGS = -q
+  CFLAGS = -O2vc -ff -X -v- -RT-
+  WFLAGS = -w-8057
+  DLLFLAGS = /C /c /Tpd /Gn /q /v-
+  DBGFLAGS = 
+
+  IMPLIB = auPiECE.lib
+  DEF = auPiECE.def
+
+  CC = bcc32
+  CXX = bcc32
+
+  OUTPUT=-o
+  COMPILEONLY=-c
+
+  LIBS=shlwapi import32 noeh32 cw32
+  MAKEDLL = ilink32 $(DBGFLAGS) $(ENVFLAGS) $(DLLFLAGS) c0d32x.obj $(subst /,\\,$(OBJS)), $@, , $(LIBS), $(DEF)
+endif
+endif
+
+.SUFFIXES: .c $(OBJEXT) .dll .kpi .h
+
+.c$(OBJEXT):
+	$(CC) $(COMPILEONLY) $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) $(OUTPUT)$@ $<
+.cpp$(OBJEXT):
+	$(CXX) $(COMPILEONLY) $(DBGFLAGS) $(ENVFLAGS) $(WFLAGS) $(CFLAGS) $(OUTPUT)$@ $<

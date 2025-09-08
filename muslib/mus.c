@@ -21,11 +21,11 @@
 // 音源ドライバー
 //
 //  v1.00 2001.11.09 MIO.H
+//  v1.01 2003.02.23 S.Kino.	可変周波数に対応
 //
 
 
 
-#include <string.h>
 #ifdef _WIN32
 #include "musdefwin.h"
 #endif
@@ -157,15 +157,33 @@ void MakeWaveTRI_fast( MDEVICE *mp, signed short *p, signed long vv, int cnt );
 // --------------------------------
 // エンベロープ・ジェネレーター
 
+// SK : グローバル変数化
+/*
 #define VOLS 1
 
 #define ENVSTART ((-4*12*256)<<VOLS)
 #define ENVSTOP  ((-10*12*256)<<VOLS)
 #define ENVRR    (4000<<VOLS)
+*/
+
+long VOLS, ENVSTART, ENVSTOP, ENVRR;
+// SK : ここまで
 
 static signed long SetEnvSpeed( int n )
 {
 	return gexp( n*192 + 4*12*256 )<<VOLS;
+}
+
+// SK : 可変周波数対応 エンベロープスピード生成関数
+static signed long SetEnvSpeed2( int n )
+{
+	extern double conv_num;
+	signed long r;
+
+	r = (signed long)gexp( n*192 + 4*12*256 )<<VOLS;
+	r = (signed long)(r * conv_num);
+
+	return r;
 }
 
 static void GenEnvR( MDEVICE *mp )
@@ -210,9 +228,10 @@ void SetEnv( MDEVICE *mp, int ar, int dr, int sl, int sr )
 {
 	if ( sl > 127 ) sl = 127;
 	mp->envSL = (sl-127) * (192*(1<<VOLS));
-	mp->envAR = SetEnvSpeed( ar );
-	mp->envDR = SetEnvSpeed( dr );
-	mp->envSR = SetEnvSpeed( sr );
+	// SK : 可変周波数に対応した関数を呼び出す
+	mp->envAR = SetEnvSpeed2( ar );//SetEnvSpeed( ar );
+	mp->envDR = SetEnvSpeed2( dr );//SetEnvSpeed( dr );
+	mp->envSR = SetEnvSpeed2( sr );//SetEnvSpeed( sr );
 #ifdef DEBUGENV
 	printf( "SetEnv=%d,%d,%d,%d\n", ar, dr, sl, sr );
 	printf( "St=%d ", ENVSTART>>VOLS );
@@ -232,6 +251,18 @@ void SetEnv( MDEVICE *mp, int ar, int dr, int sl, int sr )
 // ビブラート・ジェネレーター
 
 #define T1CONST 0x4000
+
+// SK : 可変周波数対応 ビブラートスピード生成関数
+static signed short SetVibSpeed2( int n )
+{
+	extern double conv_num;
+	signed short r;
+
+	r = (signed short)gexp( n * 192 + 8*12*256 );
+	r = (signed short)(r * conv_num);
+
+	return r;
+}
 
 static void GenVibS2( MDEVICE *mp )
 {
@@ -271,9 +302,10 @@ static void GenVibInit( MDEVICE *mp )
 void SetVib( MDEVICE *mp, int depth, int spd, int t1, int t2 )
 {
 	mp->vibdpe = depth * 12 * 8;
-	mp->vibvv  = (signed short)gexp( spd * 192 + 8*12*256 );
-	mp->vibv1  = (signed short)gexp( t1 * 192 + 8*12*256 );
-	mp->vibv2  = (signed short)gexp( t2 * 192 + 8*12*256 );
+	// SK : 可変周波数に対応した関数を呼び出す
+	mp->vibvv  = SetVibSpeed2( spd );//(signed short)gexp( spd * 192 + 8*12*256 );
+	mp->vibv1  = SetVibSpeed2( t1 );//(signed short)gexp( t1 * 192 + 8*12*256 );
+	mp->vibv2  = SetVibSpeed2( t2 );//(signed short)gexp( t2 * 192 + 8*12*256 );
 #ifdef DEBUGVIB
 	printf( "SetVib=%d,%d,%d,%d\n", depth, spd, t1, t2 );
 	printf( "vibdpe = %d ", mp->vibdpe );
@@ -390,7 +422,7 @@ void BuffFree( PCEWAVEINFO *pwi )
 			pwi->resv = 0;
 			pwi->next = 0;
 
-			memset( p0, 0, 2*BLKS );
+			ZeroMemory(p0, 2 * BLKS);
 			for ( ch = 0; ch < MAXCH; ch++ ) {
 				MDEVICE *mp = music[ch];
 				if ( mp && mp->freq ) {
@@ -426,8 +458,8 @@ int MusicCheck( void )
 void init_wk( void )
 {
 	finish = 1;
-	memset( music, 0, sizeof(music) );
-	memset( waveinfo, 0, sizeof(waveinfo) );
+	ZeroMemory(music, sizeof(music));
+	ZeroMemory(waveinfo, sizeof(waveinfo));
 	blkip = 0;
 	blkop = 0;
 }
@@ -450,7 +482,8 @@ void PlayMusic( unsigned char *seq )
 		PCEWAVEINFO *pwi;
 		int n = blkip+1;
 		pwi = waveinfo + blkip;
-		pwi->pData = memset( wavebuff+blkip, 0, BLKS );
+		ZeroMemory(wavebuff + blkip, BLKS);
+		pwi->pData = wavebuff+blkip;
 		pwi->len = BLKS;
 		pwi->type = PW_TYPE_16BITPCM|PW_TYPE_CONT;
 		pwi->pfEndProc = BuffFree;

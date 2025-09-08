@@ -4,23 +4,23 @@ MUSDEF=muslib/musdef.h
 MDEFWIN=muslib/musdefwin.h
 WAVE=muslib/wave
 
-dllexports.o:           dllexports.c            version.h    winlayer.h
-winlayer.o:             winlayer.cpp            $(MUSDEF)    $(MDEFWIN)
+dllexports$(OBJEXT):           dllexports.c            version.h    winlayer.h
+winlayer$(OBJEXT):             winlayer.cpp            $(MUSDEF)    $(MDEFWIN)
 
-muslib/exp12.o:         muslib/exp12.c
-muslib/instdef.o:       muslib/instdef.c        $(MUSDEF)
-muslib/mus.o:           muslib/mus.c            $(MUSDEF)    $(MDEFWIN)
-muslib/seq.o:           muslib/seq.c            $(MUSDEF)
-muslib/wavetable.o:     muslib/wavetable.c      $(MUSDEF)
+muslib/exp12$(OBJEXT):         muslib/exp12.c
+muslib/instdef$(OBJEXT):       muslib/instdef.c        $(MUSDEF)
+muslib/mus$(OBJEXT):           muslib/mus.c            $(MUSDEF)    $(MDEFWIN)
+muslib/seq$(OBJEXT):           muslib/seq.c            $(MUSDEF)
+muslib/wavetable$(OBJEXT):     muslib/wavetable.c      $(MUSDEF)
 
-$(WAVE)/i_BD909.o:      $(WAVE)/i_BD909.c       $(MUSDEF)
-$(WAVE)/i_CYMBD.o:      $(WAVE)/i_CYMBD.c       $(MUSDEF)
-$(WAVE)/i_HANDCLAP.o:   $(WAVE)/i_HANDCLAP.c    $(MUSDEF)
-$(WAVE)/i_HC909.o:      $(WAVE)/i_HC909.c       $(MUSDEF)
-$(WAVE)/i_HO909.o:      $(WAVE)/i_HO909.c       $(MUSDEF)
-$(WAVE)/i_SD909.o:      $(WAVE)/i_SD909.c       $(MUSDEF)
-$(WAVE)/i_SDGATE.o:     $(WAVE)/i_SDGATE.c      $(MUSDEF)
-$(WAVE)/i_TOMH1.o:      $(WAVE)/i_TOMH1.c       $(MUSDEF)
-$(WAVE)/i_TOML1.o:      $(WAVE)/i_TOML1.c       $(MUSDEF)
-$(WAVE)/i_TOMM1.o:      $(WAVE)/i_TOMM1.c       $(MUSDEF)
+$(WAVE)/i_BD909$(OBJEXT):      $(WAVE)/i_BD909.c       $(MUSDEF)
+$(WAVE)/i_CYMBD$(OBJEXT):      $(WAVE)/i_CYMBD.c       $(MUSDEF)
+$(WAVE)/i_HANDCLAP$(OBJEXT):   $(WAVE)/i_HANDCLAP.c    $(MUSDEF)
+$(WAVE)/i_HC909$(OBJEXT):      $(WAVE)/i_HC909.c       $(MUSDEF)
+$(WAVE)/i_HO909$(OBJEXT):      $(WAVE)/i_HO909.c       $(MUSDEF)
+$(WAVE)/i_SD909$(OBJEXT):      $(WAVE)/i_SD909.c       $(MUSDEF)
+$(WAVE)/i_SDGATE$(OBJEXT):     $(WAVE)/i_SDGATE.c      $(MUSDEF)
+$(WAVE)/i_TOMH1$(OBJEXT):      $(WAVE)/i_TOMH1.c       $(MUSDEF)
+$(WAVE)/i_TOML1$(OBJEXT):      $(WAVE)/i_TOML1.c       $(MUSDEF)
+$(WAVE)/i_TOMM1$(OBJEXT):      $(WAVE)/i_TOMM1.c       $(MUSDEF)
 

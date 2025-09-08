@@ -2,12 +2,12 @@
 
 WAVE=muslib/wave
 
-WAVEDATA = $(WAVE)/i_BD909.o $(WAVE)/i_HC909.o $(WAVE)/i_SDGATE.o \
-	$(WAVE)/i_TOMM1.o $(WAVE)/i_CYMBD.o $(WAVE)/i_HO909.o \
-	$(WAVE)/i_TOMH1.o $(WAVE)/i_HANDCLAP.o $(WAVE)/i_SD909.o \
-	$(WAVE)/i_TOML1.o
-MUSLIB = muslib/exp12.o muslib/instdef.o muslib/mus.o muslib/seq.o \
-	muslib/wavetable.o
-DLLOBJ=dllexports.o winlayer.o
+WAVEDATA = $(WAVE)/i_BD909$(OBJEXT) $(WAVE)/i_HC909$(OBJEXT) $(WAVE)/i_SDGATE$(OBJEXT) \
+	$(WAVE)/i_TOMM1$(OBJEXT) $(WAVE)/i_CYMBD$(OBJEXT) $(WAVE)/i_HO909$(OBJEXT) \
+	$(WAVE)/i_TOMH1$(OBJEXT) $(WAVE)/i_HANDCLAP$(OBJEXT) $(WAVE)/i_SD909$(OBJEXT) \
+	$(WAVE)/i_TOML1$(OBJEXT)
+MUSLIB = muslib/exp12$(OBJEXT) muslib/instdef$(OBJEXT) muslib/mus$(OBJEXT) muslib/seq$(OBJEXT) \
+	muslib/wavetable$(OBJEXT)
+DLLOBJ=dllexports$(OBJEXT) winlayer$(OBJEXT)
 
 OBJS = $(MUSLIB) $(WAVEDATA) $(DLLOBJ)

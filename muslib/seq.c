@@ -21,6 +21,7 @@
 // シーケンサー
 //
 //  v1.00 2001.11.09 MIO.H
+//  v1.01 2003.02.23 S.Kino.	可変周波数に対応
 //
 
 
@@ -430,7 +431,7 @@ int ProcSeq( void )
 
 	if ( ( tempowk -= tempo ) >= 0 ) return runf;
 
-	tempowk += MCOUNT;
+	tempowk += (short)MCOUNT;//MCOUNT; // SK : グローバル変数化に伴うキャスト
 
 	runf = 0;
 

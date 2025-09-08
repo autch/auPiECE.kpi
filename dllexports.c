@@ -4,12 +4,15 @@
 #include "version.h"
 #include "winlayer.h"
 
+extern HANDLE myhModule;
+
 /* DLL —p‚Ì main() */
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 	switch(ul_reason_for_call)
 	{
 		case DLL_PROCESS_ATTACH:
+			myhModule = hModule;
 			DisableThreadLibraryCalls(hModule);
 		case DLL_THREAD_ATTACH:
 		case DLL_THREAD_DETACH:
@@ -28,7 +31,7 @@ KMPMODULE* WINAPI kmp_GetTestModule()
 	{
 		KMPMODULE_VERSION,				// DWORD dwVersion;
 		AUPIECE_KPI_VERSION,			// DWORD dwPluginVersion;
-		"Copyright (c) 2001 - 2003, AQUAPLUS Co., Ltd. / OeRSTED, Inc. / Yui N. all rights reserved.  ",
+		"Copyright (c) 2001 - 2003, AQUAPLUS Co., Ltd. / OeRSTED, Inc. / Yui N. / S. Kino. all rights reserved.  ",
 															// const char	*pszCopyright;
 		"P/ECE pmd sequence decoder plugin for KbMedia Player",
 															// const char	*pszDescription;

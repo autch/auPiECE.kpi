@@ -1,15 +1,27 @@
-/* muslib <--> kpi 間レイヤー */
+///////////////////////////////////////////////////////////
+// auPiECE.kpi
+// muslib <--> kpi 間レイヤー
+// by Yui N. / S. Kino.
+//
+// v1.00	2003.2.21		Yui N.		初版
+// v1.10	2003.2.23		S. Kino.	可変サンプリングレート対応
+//															（Kb の再生周波数要求に適応するわけではない）
+///////////////////////////////////////////////////////////
+
+
+// Yui: 2 度しか呼ばれない log() のためにこいつを使うのはいやじゃｗ
+// #include <math.h> // SK : extern "C" の中では読み込めない
+#include <shlwapi.h>
 
 extern "C"
 {
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <stdio.h>
-#include <string.h>
-#include <memory.h>
 #include "muslib/musdefwin.h"
 #include "muslib/muslib.h"
 #include "kmp_pi.h"
+
+double auLog(double x);					// Yui: 自前 Log()
 
 typedef enum
 {
@@ -40,6 +52,10 @@ public:
 AuPIECEKPI *Decoder;
 PCEWAVEINFO *pWave;
 
+double conv_num; // SK : 16KHz に対する設定周波数の割合（muslib も参照する）
+long FS, FS2, MCOUNT, FOFS;		// Yui: musdef.h から移してきたグローバル変数
+HANDLE myhModule;
+
 // P/ECE カーネル API エントリポイント
 int pceWaveDataOut(int ch, PCEWAVEINFO *pwave)
 {
@@ -54,7 +70,14 @@ int pceWaveDataOut(int ch, PCEWAVEINFO *pwave)
 // 以下，kpi エントリポイント
 void WINAPI kpiInit(void)
 {
+	char filename[1024];
+
 	Decoder = new AuPIECEKPI;
+
+	GetModuleFileName((HMODULE)myhModule, filename, 1024);
+	PathRenameExtension(filename, ".ini");
+	FS = GetPrivateProfileInt("auP/ECE", "SamplingFrequency", 44100, filename);
+	FS *= 2;
 }
 
 void WINAPI kpiDeinit(void)
@@ -67,7 +90,23 @@ HKMP WINAPI kpiOpen(const char *cszFileName, SOUNDINFO *pInfo)
 	if(pInfo == NULL)	return NULL;
 	if(Decoder->Open(cszFileName) == TRUE)
 	{
-		pInfo->dwSamplesPerSec = 16000;			//サンプリング周波数(44100, 22050 など)
+		// SK : muslib の可変周波数化に伴う、各種グローバル変数の初期化
+		extern long VOLS, ENVSTART, ENVSTOP, ENVRR;
+
+		// FS = 88200;		// Yui: ini ファイルによる設定変更に対応させる
+		FS2 = FS / 2;
+		MCOUNT = (long)(FS2 / 128.0 * 2.5 * 16.0 + 0.5);
+		FOFS = (long)(auLog(FS2) / auLog(2.0) * 12.0 * 256.0 + 0.5);		// Yui: 自前 Log()
+
+		conv_num = 16000.0 / FS2;
+
+		VOLS = 1;
+		ENVSTART = (long)(((-4 * 12 * 256) << VOLS) * conv_num);
+		ENVSTOP = (long)(((-10 * 12 * 256) << VOLS) * conv_num);
+		ENVRR = (long)((4000 << VOLS) * conv_num);
+		// SK : ここまで
+
+		pInfo->dwSamplesPerSec = FS2;				//サンプリング周波数(44100, 22050 など)
 		pInfo->dwChannels = 1;							//チャンネル数( mono = 1, stereo = 2)
 		pInfo->dwBitsPerSample = 16;				//量子化ビット数( 8 or 16)
 		pInfo->dwLength = 0xffffffff;				//曲の長さ（SPC のように計算不可能な場合は 0xFFFFFFFF）
@@ -100,7 +139,7 @@ DWORD WINAPI kpiRender(HKMP hKMP, BYTE* Buffer, DWORD dwSize)
 	//if(Decoder->GetStatus() == emOpened)	Decoder->Start();
 	if(Decoder->GetpBuffer() == NULL) return 0;
 
-	memcpy(Buffer, Decoder->GetpBuffer(), dwSize);
+	CopyMemory(Buffer, Decoder->GetpBuffer(), dwSize);
 	pWave->pfEndProc(pWave);
 	return dwSize;
 }
@@ -162,24 +201,26 @@ void AuPIECEKPI::Close()
 
 BOOL AuPIECEKPI::Open(const char *cszFileName)
 {
-	FILE *fp;
-	DWORD fsize;
+	HANDLE hFile;
+	DWORD fsize, dwBytesRead;
 
 	if(m_status != emClosed)
 		return FALSE;
 
-	m_filename = new char[strlen(cszFileName) + 1];
-	strcpy(m_filename, cszFileName);
+	m_filename = new char[lstrlen(cszFileName) + 1];
+	lstrcpy(m_filename, cszFileName);
 
-	fp = fopen(m_filename, "rb");
-	{// ファイルサイズの取得
-		fseek(fp, 0, SEEK_END);
-		fsize = ftell(fp);
-		rewind(fp);
+	hFile = CreateFile(m_filename, GENERIC_READ, 0, NULL,
+											OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hFile != INVALID_HANDLE_VALUE)
+	{
+		fsize = GetFileSize(hFile, NULL);
+
+		m_pseq = new unsigned char[fsize + 1];
+		ReadFile(hFile, m_pseq, fsize, &dwBytesRead, NULL);
+
+		CloseHandle(hFile);
 	}
-	m_pseq = new unsigned char[fsize + 1];
-	fread(m_pseq, sizeof(unsigned char), fsize, fp);
-	fclose(fp);
 
 	m_pbuffer = NULL;
 	m_status = emOpened;
@@ -199,6 +240,27 @@ signed short *AuPIECEKPI::GetpBuffer()
 DecoderStatus AuPIECEKPI::GetStatus()
 {
 	return m_status;
+}
+
+// Yui: 自家製 Log()
+// source from: 平林雅英「ANSI C 言語辞典」
+double auLog(double x)
+{
+	int n = 1;
+	double a, r = 0, r2;
+	const double LN2 = 0.69314718055994530941723212145818;
+
+	if(x <= 0)	return 0;
+	while(x >= 2)	{	x /= 2;	r += LN2;	}
+	while(x < 1)	{	x *= 2;	r -= LN2;	}
+	x = (x - 1) / (x + 1);
+	a = 2 * x;	x = x * x;
+	do
+	{
+		r2 = r;	r += a / n;
+		a *= x;	n += 2;
+	}while(r != r2);
+	return r;
 }
 
 };			// extern "C"

@@ -21,6 +21,8 @@
 // ドライバ内定義ファイル
 //
 //  v1.00 2001.11.09 MIO.H
+//  v1.01 2003.02.23 S.Kino.	可変周波数に対応させるために，いくつかの
+//														マクロをグローバル変数化
 //
 
 
@@ -103,14 +105,16 @@ typedef struct tagSEQWK {
 } SEQWK;
 
 
+#define PITCH44K 47396
 #define PITCH22K 44324
 #define PITCH16K 42903
 #define PITCH440 26976
 #define PITCH_A4 PITCH440
 #define PITCH_C4 (PITCH_A4-9*256)
 
-
-#if 0
+// SK グローバル変数化
+/*
+#if defined(FS22K)
 ////////////////////// fs=22k
 #define FS  44100
 #define FS2 22050
@@ -122,6 +126,19 @@ typedef struct tagSEQWK {
 
 // 22050
 #define FOFS PITCH22K
+
+#elif defined(FS44K)
+////////////////////// fs=44k
+#define FS  88200
+#define FS2 44100
+
+//	2.5 * f(Hz)
+//
+// 44100/128*2.5*16=13781.25
+#define MCOUNT 13781
+
+// 44100
+#define FOFS PITCH44K
 
 #else
 ////////////////////// fs=16k
@@ -135,6 +152,11 @@ typedef struct tagSEQWK {
 #define FOFS PITCH16K
 
 #endif
+*/
+
+// Yui: そのままだと BCC でコンパイル不可。実体は winlayer.cpp に移した
+extern long FS, FS2, MCOUNT, FOFS;
+// SK : ここまで
 
 //              16384                 32
 //              -----                 ------
