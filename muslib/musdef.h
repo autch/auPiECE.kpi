@@ -32,7 +32,7 @@
 
 
 #define MAXNESTD 24
-#define MAXCH 6
+#define MAXCH 26
 
 typedef struct tagINST {
 	unsigned char wtype;

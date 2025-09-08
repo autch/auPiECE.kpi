@@ -307,14 +307,14 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 			first = *m_pseq;	second = *(m_pseq + 1);
 			if(first == 0x00)
 			{
-				if(second > 0x0f)
+        if(second > MAXCH)
 				{
 					piece_Context_Unlock(m_pContext);
 					return FALSE;
 				}
 			}
 			else
-				if(first > 0x0f)
+        if(first > MAXCH)
 				{
 					piece_Context_Unlock(m_pContext);
 					return FALSE;
