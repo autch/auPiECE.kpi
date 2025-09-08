@@ -24,6 +24,9 @@
 //  v1.01 2003.02.23 S.Kino.	可変周波数に対応
 //  v1.02 2003   ?   Yui N.		演奏終了を検出できるようにした
 //  v1.03 2003.05.07 Yui N.		はらやんさんのプチノイズ対策を実装
+//  v1.04 2003.08.03 Yui N., Kobarin
+//														Kobarin さんの msvcrt レス化パッチを取り込むも、
+//														コンパイラを変更したので無用に（ぉ
 //
 
 
@@ -44,14 +47,15 @@ int ProcSeq( void );
 
 extern INST *inst[];
 
-static signed short wavebuff[BLKN][BLKS];
-static volatile unsigned char blkip;
-static volatile unsigned char blkop;
+//static 解除 by Kobarin
+/*static*/ signed short wavebuff[BLKN][BLKS];
+/*static*/ volatile unsigned char blkip;
+/*static*/ volatile unsigned char blkop;
 unsigned char finish;		// Yui: winlayer.cpp から参照するため static をはずした
 
-static PCEWAVEINFO waveinfo[BLKN];
+/*static*/ PCEWAVEINFO waveinfo[BLKN];
 
-static MDEVICE *music[MAXCH];
+/*static*/ MDEVICE *music[MAXCH];
 
 unsigned char music_wch;
 
@@ -183,8 +187,7 @@ static signed long SetEnvSpeed2( int n )
 	signed long r;
 
 	r = (signed long)gexp( n*192 + 4*12*256 )<<VOLS;
-	r = (signed long)(r * conv_num);
-
+	r *= conv_num;		// yui: 組み込み実数演算を利用
 	return r;
 }
 
@@ -261,8 +264,7 @@ static signed short SetVibSpeed2( int n )
 	signed short r;
 
 	r = (signed short)gexp( n * 192 + 8*12*256 );
-	r = (signed short)(r * conv_num);
-
+	r *= conv_num;		// yui: 組み込み実数演算を利用
 	return r;
 }
 

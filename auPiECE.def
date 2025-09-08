@@ -1,6 +1,4 @@
 LIBRARY		auPiECE
 
-DESCRIPTION	"P/ECE pmd sequence decoder plugin for KbMedia Player"
-
 EXPORTS
 	kmp_GetTestModule

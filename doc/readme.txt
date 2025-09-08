@@ -8,12 +8,12 @@
 //              Third Party Programs
 //
 //
-// PIECE LIBRARY : auPiECE.kpi : Ver 1.08
+// PIECE LIBRARY : auPiECE.kpi : Ver 1.09
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
 // Copyright (c)2003 Yui N.
 //
-// Coded by MIO.H (OeRSTED) / Yui N. (Autch.net) / S. Kino.
+// Coded by MIO.H (OeRSTED) / Yui N. (Autch.net) / S. Kino. / Kobarin
 //
 // Comments:
 //
@@ -30,6 +30,7 @@
 //  v1.06 2003.03.24 Yui N.
 //  v1.07 2003.05.03 Yui N.
 //  v1.08 2003.05.07 Yui N.
+//  v1.09 2003.08.03 Yui N.
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
@@ -69,6 +70,11 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 	Version 1.07	ヴィブラートとデチューンが初期化されない仕様を改良
 	Version 1.08	はらやんさん（http://hara-yan-web.hp.infoseek.co.jp/）
 			のプチノイズ対策を取り込み
+	Version 1.09	Kobarin さんの re-entrant 化パッチを取り込み
+			クロスフェード時のパフォーマンスが向上
+			コンパイラを Visual C++ .NET 2003 に変更し、
+			kernel32.dll 以外には依存しないようにした
+			Pentium Pro 以降用に最適化
 
 ライセンスについて
 	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースにパッチを当

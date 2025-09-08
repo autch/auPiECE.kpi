@@ -46,13 +46,14 @@ char *title2;
 
 #define MAXSEQ MAXCH
 
-static SEQWK seqwk[MAXSEQ];
-static unsigned char *datatop;
-static unsigned char *drumsbase;
-static signed short tempo;
-static signed short tempowk;
-static char runf;
-
+//static ‰ğœ by Kobarin
+/*static*/ SEQWK seqwk[MAXSEQ];
+/*static*/ unsigned char *datatop;
+/*static*/ unsigned char *drumsbase;
+/*static*/ signed short tempo;
+/*static*/ signed short tempowk;
+/*static*/ char runf;
+//static ‰ğœ‚±‚±‚Ü‚Å by Kobarin
 
 int getadrs( unsigned char *p )
 {

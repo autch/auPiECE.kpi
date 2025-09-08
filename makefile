@@ -18,8 +18,9 @@ clean:
 install:
 	cp $(TARGET) $(DOC) $(KBMPLAY)
 
-binarc: $(TARGET)
-	zip -9j auPiECE_kpi-binary.zip $(TARGET) $(DOC) -x doc/compile.txt
+binarc:
+	if [ -e Release/*.kpi ]; then cp release/*.kpi .; fi
+	zip -9j auPiECE_kpi-binary.zip $(TARGET) $(DOC)
 srcarc:
-	zip -9r auPiECE_kpi-source.zip * -x *.zip -x *$(OBJEXT)
+	zip -9 auPiECE_kpi-source.zip * doc/* muslib/*.? muslib/wave/*.c release/*.kpi -x *.zip *$(OBJEXT) *.tds *.ncb
 arc: binarc srcarc

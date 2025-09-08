@@ -38,7 +38,7 @@ KMPMODULE* WINAPI kmp_GetTestModule()
 //		"P/ECE audio decoder plugin for KbMedia Player",
 															// const char	*pszDescription;
 		Exts,											// const char	**ppszSupportExts;
-		0,												// DWORD dwReentrant;
+		1,												// DWORD dwReentrant;
 		kpiInit,									// void (WINAPI *Init)(void);
 		kpiDeinit,								// void (WINAPI *Deinit)(void);
 		kpiOpen,									// HKMP (WINAPI *Open)(const char *cszFileName, SOUNDINFO *pInfo);
