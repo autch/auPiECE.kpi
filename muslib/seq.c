@@ -22,6 +22,7 @@
 //
 //  v1.00 2001.11.09 MIO.H
 //  v1.01 2003.02.23 S.Kino.	可変周波数に対応
+//  v1.02 2003.05.03 Yui N.		デチューンとヴィブラートが初期化されない仕様を改良
 //
 
 
@@ -94,6 +95,9 @@ void StartSeq( unsigned char *seqptr )
 		SetupCh( &psw->mdwk, i );
 		SetInst( &psw->mdwk, 0 );
 		SetVol( &psw->mdwk, 127 - i*16 );
+		// yui: ビブラート初期化
+		SetVib( &psw->mdwk, 0, 0, 0, 0);
+		psw->dtn = 0;		// デチューン初期化
 	}
 	for ( ; i < MAXSEQ; i++ ) {
 		SEQWK *psw = seqwk + i;

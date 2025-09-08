@@ -13,6 +13,7 @@
 // v1.05	2003.3.14		Yui N,		SOUNDINFO::dwUnitRender の倍数渡しが行われたら
 //															そこで演奏終了するようにした（ぉ
 // v1.06	2003.3.24		Yui N,		のこも Decoder でデコードできないバグを退治
+// v1.07	2003.5.03		Yui N,		ヴィブラートとデチューンが初期化されない仕様を改良
 ///////////////////////////////////////////////////////////
 
 
@@ -148,7 +149,6 @@ AuPIECEKPI::AuPIECEKPI()
 	m_filename = NULL;
 	m_pbuffer = NULL;
 	m_status = emClosed;
-	InitMusic();
 }
 
 AuPIECEKPI::~AuPIECEKPI()
@@ -160,6 +160,7 @@ void AuPIECEKPI::Start()
 {
 	if(m_pseq == NULL)	return;
 	//if(m_status != emOpened) return;
+	InitMusic();													// yui: 曲の再生時に detune と vibrato の初期化をする
 	PlayMusic(m_pseq);
 	m_status = emRunning;
 }
@@ -231,7 +232,7 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 	if(defaultFS <= 0)	defaultFS = 44100;
 	// SK : muslib の可変周波数化に伴う、各種グローバル変数の初期化
 	FS = pInfo->dwSamplesPerSec * 2;
-	if(FS == 0) FS = defaultFS * 2;
+	if(FS == 0)	FS = defaultFS * 2;
 	// FS = 88200;		// Yui: ini ファイルによる設定変更に対応させる
 	FS2 = FS / 2;
 	MCOUNT = (long)(FS2 / 128.0 * 2.5 * 16.0 + 0.5);

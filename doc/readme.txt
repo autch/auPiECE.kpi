@@ -8,7 +8,7 @@
 //              Third Party Programs
 //
 //
-// PIECE LIBRARY : auPiECE.kpi : Ver 1.06
+// PIECE LIBRARY : auPiECE.kpi : Ver 1.07
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
 // Copyright (c)2003 Yui N.
@@ -28,6 +28,7 @@
 //  v1.04 2003.03.04 Yui N.
 //  v1.05 2003.03.07 Yui N.
 //  v1.06 2003.03.24 Yui N.
+//  v1.07 2003.05.03 Yui N.
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
@@ -64,6 +65,7 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 	Version 1.05	SOUNDINFO::dwUnitRender の倍数渡しが行われたら
 			そこで演奏終了するようにした（ぉ
 	Version 1.06	のこも Decoder でデコードできないバグを退治
+	Version 1.07	ヴィブラートとデチューンが初期化されない仕様を改良
 
 ライセンスについて
 	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースにパッチを当
