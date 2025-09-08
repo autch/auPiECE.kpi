@@ -19,11 +19,16 @@
 //															Kobarin さんによる re-entrant 化パッチを取り込み
 //															Kernel32.dll にだけ依存するようにした
 // v1.09  2003.08.07  Yui N.		ヴィブラートとエンヴェロープの調整が正しくなかった
+// v1.10  2003.09.05  Yui N.		SOUNDINFO::dwUnitRender の倍数渡しに対応
+//															シーク速度が向上
 ///////////////////////////////////////////////////////////
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <math.h>
+
+// muslib の仕様によって定まる、一度に render() 出来るバッファサイズ
+#define RENDERSIZE (128 * sizeof(unsigned short))
 
 #if 0	// VS.NET だと不要 *******************************************
 
@@ -331,7 +336,7 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 
 			//FOFS = (long)(auLog(FS2) / auLog(2.0) * 12.0 * 256.0 + 0.5)
 			//     ==(long)(3072*auLog(FS2)/auLog(2.0)+1/2);
-			FOFS = 3072.0 * log((double)FS2) / log(2.0) + 0.5;
+			FOFS = (long)(3072.0 * log((double)FS2) / log(2.0) + 0.5);
 
 			VOLS = 1;
 
@@ -352,7 +357,7 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 		pInfo->dwBitsPerSample = 16;				//量子化ビット数( 8 or 16)
 		pInfo->dwLength = 0xffffffff;				//曲の長さ（SPC のように計算不可能な場合は 0xFFFFFFFF）
 		pInfo->dwSeekable = 0;							//シークをサポートしている場合は 1、しない場合は 0
-		pInfo->dwUnitRender = 128 * sizeof(unsigned short);					//Render 関数の第３引数はこの値の倍数が渡される（どんな値でも良い場合は 0）
+		pInfo->dwUnitRender = RENDERSIZE * 32;					//Render 関数の第３引数はこの値の倍数が渡される（どんな値でも良い場合は 0）
 		pInfo->dwReserved1 = 1;							//常に 0
 		pInfo->dwReserved2 = 0;							//常に 0
 
@@ -368,13 +373,24 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 
 DWORD AuPIECEKPI::Render(BYTE* Buffer, DWORD dwSize)
 {
+	DWORD dwBytesToRender = dwSize, dwBytesRendered = 0;
+
 	piece_Context_Lock(m_pContext);
-		DWORD unitRender = 128 * sizeof(unsigned short);
-		if((Buffer != NULL) && (GetpBuffer() != NULL))
-		CopyMemory(Buffer, GetpBuffer(), unitRender);
-		pWave->pfEndProc(pWave);
+		// yui: SOUNDINFO::dwUnitRender の倍数が与えられたときに対応
+		if(!finish)
+		{
+			do
+			{
+				if((Buffer != NULL) && (GetpBuffer() != NULL))
+					CopyMemory(Buffer + dwBytesRendered, GetpBuffer(), RENDERSIZE);
+				pWave->pfEndProc(pWave);
+				dwBytesToRender -= RENDERSIZE;
+				dwBytesRendered += RENDERSIZE;
+			}while(dwBytesToRender > 0);
+		}
 	piece_Context_Unlock(m_pContext);
-	return (finish == 0) ? unitRender : 0;
+
+	return dwBytesRendered;
 }
 
 DWORD AuPIECEKPI::SetPosition(DWORD dwPos)

@@ -8,7 +8,7 @@
 //              Third Party Programs
 //
 //
-// PIECE LIBRARY : auPiECE.kpi : Ver 1.10
+// PIECE LIBRARY : auPiECE.kpi : Ver 1.11
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
 // Copyright (c)2003 Yui N.
@@ -32,6 +32,7 @@
 //  v1.08 2003.05.07 Yui N.
 //  v1.09 2003.08.03 Yui N.
 //  v1.10 2003.08.07 Yui N.
+//  v1.11 2003.09.05 Yui N.
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
@@ -79,6 +80,10 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 	Version 1.10	可変周波数対応するときに、エンベロープ値の調整を
 			誤っていたバグを修正（今頃気づくなよ）。
 			100% 再現とか大嘘ぶっこいてましたすみません(;´Д｀)
+	Version 1.11	SOUNDINFO::dwUnitRender の倍数渡しにちゃんと対応し、
+			シーク速度が向上した。
+			（KbMP 本体は倍数渡しをしないが、muslib 内部の実装に
+			依存した小さすぎる値を返していたのでシークが遅かった）
 
 ライセンスについて
 	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースにパッチを当
