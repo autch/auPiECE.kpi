@@ -8,7 +8,7 @@
 //              Third Party Programs
 //
 //
-// PIECE LIBRARY : auPiECE.kpi : Ver 1.04
+// PIECE LIBRARY : auPiECE.kpi : Ver 1.06
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
 // Copyright (c)2003 Yui N.
@@ -27,6 +27,7 @@
 //  v1.03 2003.02.26 Yui N.
 //  v1.04 2003.03.04 Yui N.
 //  v1.05 2003.03.07 Yui N.
+//  v1.06 2003.03.24 Yui N.
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
@@ -60,6 +61,9 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 	Version 1.03	KbMedia Player 本体からの再生周波数要求に対応
 	Version 1.04	簡単なフォーマットチェックを行うようにした
 			（着メロの pmd ファイルとの競合を回避する）
+	Version 1.05	SOUNDINFO::dwUnitRender の倍数渡しが行われたら
+			そこで演奏終了するようにした（ぉ
+	Version 1.06	のこも Decoder でデコードできないバグを退治
 
 ライセンスについて
 	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースにパッチを当
@@ -87,6 +91,8 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 	グや欠陥について何ら修正する義務を負いません。使用者は，このプログラム
 	の欠陥によって自らの財産等に損害が出る可能性があることを了承したうえで
 	このプログラムを使用しなければなりません。
+
+	これら以外については，P/ECE デフォルトのフリーソフトの扱いに準じます。
 
 ----------------------------------------
 Yui N. (a.k.a. Autch)

@@ -14,4 +14,4 @@ DEF = auPiECE.def
 
 OBJS = $(MUSLIB) $(WAVEDATA) $(DLLOBJ)
 
-DOC = doc/* *.txt
+DOC = doc/*

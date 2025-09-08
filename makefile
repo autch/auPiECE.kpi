@@ -19,7 +19,7 @@ install:
 	cp $(TARGET) $(DOC) $(KBMPLAY)
 
 binarc: $(TARGET)
-	zip -9j auPiECE_kpi-binary.zip $(TARGET) $(DOC) -x compile.txt
+	zip -9j auPiECE_kpi-binary.zip $(TARGET) $(DOC) -x doc/compile.txt
 srcarc:
 	zip -9r auPiECE_kpi-source.zip * -x *.zip -x *$(OBJEXT)
 arc: binarc srcarc

@@ -10,6 +10,9 @@
 //															（しかしまだ曲長計算は実装されていない）
 // v1.03	2003.2.26		Yui N,		Kb の再生周波数要求に応じるようになった
 // v1.04	2003.3.07		Yui N,		簡単なフォーマットチェックを行うようにした
+// v1.05	2003.3.14		Yui N,		SOUNDINFO::dwUnitRender の倍数渡しが行われたら
+//															そこで演奏終了するようにした（ぉ
+// v1.06	2003.3.24		Yui N,		のこも Decoder でデコードできないバグを退治
 ///////////////////////////////////////////////////////////
 
 
@@ -119,13 +122,14 @@ void WINAPI kpiClose(HKMP hKMP)
 
 DWORD WINAPI kpiRender(HKMP hKMP, BYTE* Buffer, DWORD dwSize)
 {
-	if(hKMP == NULL)	return 0;
-	//if(Decoder->GetStatus() == emOpened)	Decoder->Start();
-	if(Decoder->GetpBuffer() == NULL) return 0;
+	DWORD unitRender = 128 * sizeof(unsigned short);
 
-	if(Buffer != NULL)	CopyMemory(Buffer, Decoder->GetpBuffer(), dwSize);
+	if(hKMP == NULL)	return 0;
+
+	if((Buffer != NULL) && (Decoder->GetpBuffer() != NULL))
+		CopyMemory(Buffer, Decoder->GetpBuffer(), unitRender);
 	pWave->pfEndProc(pWave);
-	return (finish == 0) ? dwSize : 0;
+	return (finish == 0) ? unitRender : 0;
 }
 
 DWORD WINAPI kpiSetPosition(HKMP hKMP, DWORD dwPos)
@@ -247,12 +251,13 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 	pInfo->dwLength = 0xffffffff;				//曲の長さ（SPC のように計算不可能な場合は 0xFFFFFFFF）
 	pInfo->dwSeekable = 0;							//シークをサポートしている場合は 1、しない場合は 0
 	pInfo->dwUnitRender = 128 * sizeof(unsigned short);					//Render 関数の第３引数はこの値の倍数が渡される（どんな値でも良い場合は 0）
-	pInfo->dwReserved1 = 0;							//常に 0
+	pInfo->dwReserved1 = 1;							//常に 0
 	pInfo->dwReserved2 = 0;							//常に 0
-	Decoder->Start();
 
 	m_pbuffer = NULL;
 	m_status = emOpened;
+
+	Decoder->Start();
 	return TRUE;
 }
 

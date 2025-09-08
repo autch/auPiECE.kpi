@@ -8,7 +8,7 @@
 //              Third Party Programs
 //
 //
-// PIECE DOCUMENT : auPiECE.kpi compile how-to : Ver 1.00
+// PIECE DOCUMENT : auPiECE.kpi compile how-to : Ver 1.01
 //
 // Copyright (c)2003 Yui N.
 //
@@ -17,14 +17,13 @@
 // auPiECE.kpi のコンパイル方法（プログラムの概要については readme.txt を参照）
 //
 //  v1.00 2003.03.04 Yui N.
+//  v1.01 2003.03.11 Yui N.
 //
 
 はじめに
 --------
 	このプログラムが何なのかについては，readme.txt を参照してください。
 	このドキュメントでは，auPiECE.kpi をコンパイルする方法を解説します。
-	なぜバイナリ配布が行われないのかについても，readme.txt を参照してくださ
-	い。
 
 用意するもの
 ------------
@@ -53,7 +52,7 @@
 
 makefile の修正
 ---------------
-	展開したトップディレクトリ（前項の例では どっか\）の makefile を開き，
+	展開したトップディレクトリの makefile を開き，
 		COMPILER=
 	の行を，Cygwin でコンパイルするなら cygwin, BCC でコンパイルするなら
 	borland と指定します。それ以外のコンパイラをお使いの方は，
