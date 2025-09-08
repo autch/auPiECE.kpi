@@ -313,7 +313,7 @@ static void SeqDtn( SEQWK *psw )
 static void SeqPortaPara( SEQWK *psw )
 {
 	psw->porpd = *psw->pseq++;
-	psw->porvv = (gexp(*psw->pseq++ * 192 + 5*12*256) << XSF1);
+	psw->porvv = gexp(*psw->pseq++ * 192 + 5*12*256) << XSF1;
 	psw->porvv *= tempo;
 	psw->porvv /= MCOUNT;
 }

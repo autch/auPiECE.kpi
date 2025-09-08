@@ -32,7 +32,7 @@ KMPMODULE* WINAPI kmp_GetTestModule()
 	{
 		KMPMODULE_VERSION,				// DWORD dwVersion;
 		AUPIECE_KPI_VERSION,			// DWORD dwPluginVersion;
-		"Copyright (c) 2001 - 2003, AQUAPLUS Co., Ltd. / OeRSTED, Inc. / Yui N. / S. Kino. all rights reserved.  ",
+		"Copyright (c) 2001 - 2003, AQUAPLUS Co., Ltd. / OeRSTED, Inc. / Yui N. / S. Kino. / Kobarin.  All rights reserved.",
 															// const char	*pszCopyright;
 		"P/ECE pmd sequence decoder plugin for KbMedia Player",
 //		"P/ECE audio decoder plugin for KbMedia Player",

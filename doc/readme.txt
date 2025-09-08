@@ -8,7 +8,7 @@
 //              Third Party Programs
 //
 //
-// PIECE LIBRARY : auPiECE.kpi : Ver 1.09
+// PIECE LIBRARY : auPiECE.kpi : Ver 1.10
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
 // Copyright (c)2003 Yui N.
@@ -31,6 +31,7 @@
 //  v1.07 2003.05.03 Yui N.
 //  v1.08 2003.05.07 Yui N.
 //  v1.09 2003.08.03 Yui N.
+//  v1.10 2003.08.07 Yui N.
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
@@ -75,6 +76,9 @@ pmd データが標準音色セットにない音色を要求している場合は再生できません。
 			コンパイラを Visual C++ .NET 2003 に変更し、
 			kernel32.dll 以外には依存しないようにした
 			Pentium Pro 以降用に最適化
+	Version 1.10	可変周波数対応するときに、エンベロープ値の調整を
+			誤っていたバグを修正（今頃気づくなよ）。
+			100% 再現とか大嘘ぶっこいてましたすみません(;´Д｀)
 
 ライセンスについて
 	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースにパッチを当

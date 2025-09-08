@@ -18,6 +18,7 @@
 //															コンパイラを Visual C++ .NET 2003 に移行
 //															Kobarin さんによる re-entrant 化パッチを取り込み
 //															Kernel32.dll にだけ依存するようにした
+// v1.09  2003.08.07  Yui N.		ヴィブラートとエンヴェロープの調整が正しくなかった
 ///////////////////////////////////////////////////////////
 
 #define WIN32_LEAN_AND_MEAN
@@ -128,7 +129,6 @@ public:
 AuPIECEKPI *Decoder;
 PCEWAVEINFO *pWave;
 
-double conv_num;										// SK : 16KHz に対する設定周波数の割合（muslib も参照する）
 long FS, FS2, MCOUNT, FOFS;					// Yui: musdef.h から移してきたグローバル変数
 static const int DEFAULT_FS = 44100;// Yui: ini にも Kb からも周波数指定がなかったときのデフォルト
 
@@ -294,6 +294,7 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 			return FALSE;
 		}
 
+		if(!GetPrivateProfileInt("auP/ECE", "DisableFormatCheck", 0, INIfilename))
 		{
 			// フォーマットチェック
 			BYTE first, second;
@@ -319,30 +320,31 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 		if(defaultFS <= 0)	defaultFS = DEFAULT_FS;
 
 		// SK : muslib の可変周波数化に伴う、各種グローバル変数の初期化
-			FS = pInfo->dwSamplesPerSec * 2;
-			if(FS == 0)	FS = defaultFS * 2;
+			FS = pInfo->dwSamplesPerSec << 1;
+			if(FS == 0)	FS = defaultFS << 1;
 
-			FS2 = FS / 2;
+			FS2 = FS >> 1;
 			//MCOUNT
 			//(long)(FS2/128.0*2.5*16.0+0.5) == (long)((FS2*40)/128+0.5) == (long)(FS2*40.0+64.0)/128.0)
 			//(FS2*40+64)/128
-			MCOUNT = (FS2 * 40 + 64) / 128;				// yui: 組み込み実数演算を利用
+			MCOUNT = (FS2 * 40 + 64) >> 7;				// yui: 組み込み実数演算を利用
 
 			//FOFS = (long)(auLog(FS2) / auLog(2.0) * 12.0 * 256.0 + 0.5)
 			//     ==(long)(3072*auLog(FS2)/auLog(2.0)+1/2);
-			FOFS = 3072 * log((double)FS2) / log(2.0) + 0.5;
+			FOFS = 3072.0 * log((double)FS2) / log(2.0) + 0.5;
 
-			conv_num = 16000.0 / FS2;		// yui: 組み込み実数演算を利用
 			VOLS = 1;
 
-			//ENVSTART = (long)(((-4 * 12 * 256) << VOLS) * conv_num);
-			//ENVSTOP = (long)(((-10 * 12 * 256) << VOLS) * conv_num);
-			//ENVRR = (long)((4000 << VOLS) * conv_num);
-			// MulDiv() 化 by Kobarin
-			//X * conv_num == X * (16000.0/FS2) == MulDiv(X, 16000, FS2);
-			ENVSTART = MulDiv(((-4 * 12 * 256) << VOLS), 16000, FS2);
-			ENVSTOP = MulDiv(((-10 * 12 * 256) << VOLS), 16000, FS2);
-			ENVRR = MulDiv((4000 << VOLS), 16000, FS2);
+			// 2003.08.07 Yui N.
+			// ENVSTART と ENVSTOP はレート値ではないので Freq. による調整は不要！
+			ENVSTART = ((-4 * 12 * 256) << VOLS);
+			ENVSTOP = ((-10 * 12 * 256) << VOLS);
+			
+			// ENVRR はその名のとおりレート値なので調整が必要
+			// Freq. が上がったら増やすのではなくて減らす
+			// X / (fs2 / 16k) = (X / 1) / (fs2 / 16k) = 16k * x / fs2 * 1
+			//ENVRR = (double)(4000 << VOLS) / ((double)FS2 / 16000.0);
+			ENVRR = MulDiv(4000 << VOLS, 16000, FS2);
 		// SK : ここまで
 
 		pInfo->dwSamplesPerSec = FS2;				//サンプリング周波数(44100, 22050 など)

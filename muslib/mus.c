@@ -27,6 +27,7 @@
 //  v1.04 2003.08.03 Yui N., Kobarin
 //														Kobarin さんの msvcrt レス化パッチを取り込むも、
 //														コンパイラを変更したので無用に（ぉ
+//  v1.05 2003.08.07 Yui N.   エンベロープとビブラートの調整が大嘘だったので修正;;
 //
 
 
@@ -36,6 +37,7 @@
 #endif
 // #include <piece.h>
 #include "musdef.h"
+#include <math.h>
 
 #define BLKN 4
 #define BLKS 128
@@ -183,11 +185,10 @@ static signed long SetEnvSpeed( int n )
 // SK : 可変周波数対応 エンベロープスピード生成関数
 static signed long SetEnvSpeed2( int n )
 {
-	extern double conv_num;
 	signed long r;
 
-	r = (signed long)gexp( n*192 + 4*12*256 )<<VOLS;
-	r *= conv_num;		// yui: 組み込み実数演算を利用
+	// 2003.08.07 Yui N.: これはレート値なので Freq. の調整が必要
+	r = MulDiv(gexp( n*192 + 4*12*256 )<<VOLS, 16000, FS2);
 	return r;
 }
 
@@ -260,11 +261,10 @@ void SetEnv( MDEVICE *mp, int ar, int dr, int sl, int sr )
 // SK : 可変周波数対応 ビブラートスピード生成関数
 static signed short SetVibSpeed2( int n )
 {
-	extern double conv_num;
 	signed short r;
 
-	r = (signed short)gexp( n * 192 + 8*12*256 );
-	r *= conv_num;		// yui: 組み込み実数演算を利用
+	// 2003.08.07 Yui N.: これはレート値なので Freq. の調整が必要
+	r = MulDiv(gexp( n * 192 + 8*12*256 ), 16000, FS2);
 	return r;
 }
 

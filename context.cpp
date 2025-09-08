@@ -12,6 +12,7 @@
 
 // modified by Yui N., 2003.08.03
 // conv_num の値のコピーを素直にした
+// 2003.08.07 Yui N.  conv_num を追放
 
 extern "C"
 {
@@ -26,7 +27,6 @@ extern "C"
 //winlayer.cpp
 extern AuPIECEKPI *Decoder;
 extern PCEWAVEINFO *pWave;
-extern double conv_num;		
 extern long FS, FS2, MCOUNT, FOFS;	
 extern long VOLS, ENVSTART, ENVSTOP, ENVRR;
 //mus.c
@@ -56,7 +56,6 @@ struct piece_Context
     //winlayer.cpp
     AuPIECEKPI* Decoder;
     PCEWAVEINFO *pWave;
-    double conv_num;		
     long FS, FS2, MCOUNT, FOFS;	
     long VOLS, ENVSTART, ENVSTOP, ENVRR;
     // mus.c
@@ -141,8 +140,6 @@ static void piece_Context_Save(piece_Context *context)
     //winlayer.cpp
     context->Decoder = Decoder;
     context->pWave = pWave;
-    //memcpy(&context->conv_num, &conv_num, sizeof(double));
-		context->conv_num = conv_num;		// yui: 組み込み実数演算を利用
     context->FS = FS;
     context->FS2 = FS2;
     context->MCOUNT = MCOUNT;
@@ -175,8 +172,6 @@ static void piece_Context_Restore(piece_Context *context)
     //winlayer.cpp
     Decoder = context->Decoder;
     pWave = context->pWave;
-    //memcpy(&conv_num, &context->conv_num, sizeof(double));
-		conv_num = context->conv_num;		// yui: 組み込み実数演算を利用
     FS = context->FS;
     FS2 = context->FS2;
     MCOUNT = context->MCOUNT;
