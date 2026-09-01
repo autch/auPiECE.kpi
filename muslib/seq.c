@@ -314,8 +314,11 @@ static void SeqPortaPara( SEQWK *psw )
 {
 	psw->porpd = *psw->pseq++;
 	psw->porvv = gexp(*psw->pseq++ * 192 + 5*12*256) << XSF1;
-	psw->porvv *= tempo;
-	psw->porvv /= MCOUNT;
+	// porvv * tempo は速い設定 (テンポ 120 なら速度 162 以上) で 32bit を
+	// あふれて負値になり、ポルタメントの進行方向が逆転する
+	// (SeqPortaExecP が加算しても 0 に届かず音程が下がり続ける)。
+	// MulDiv は中間値を 64bit で持つのであふれない。
+	psw->porvv = MulDiv(psw->porvv, tempo, MCOUNT);
 }
 
 static void SeqPortaOn( SEQWK *psw )

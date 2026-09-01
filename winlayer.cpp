@@ -136,6 +136,7 @@ PCEWAVEINFO *pWave;
 
 long FS, FS2, MCOUNT, FOFS;					// Yui: musdef.h から移してきたグローバル変数
 static const int DEFAULT_FS = 44100;// Yui: ini にも Kb からも周波数指定がなかったときのデフォルト
+static const int MAX_FS = 96000;	// 対応する上限 (seq.c の tempowk が signed short のため)
 
 HANDLE myhModule;
 char INIfilename[1024];
@@ -329,6 +330,18 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 			if(FS == 0)	FS = defaultFS << 1;
 
 			FS2 = FS >> 1;
+
+			// 対応するサンプリング周波数の上限。
+			// seq.c の tempowk が signed short なので、MCOUNT (= FS2 * 0.3125) が
+			// 32767 を超えるとテンポ処理が壊れる (約 105kHz)。
+			// 96kHz までを対応範囲と決めて、それより上は丸める。
+			// pInfo->dwSamplesPerSec には後段でこの FS2 を返すので齟齬は出ない。
+			if(FS2 > MAX_FS)
+			{
+				FS2 = MAX_FS;
+				FS = FS2 << 1;
+			}
+
 			//MCOUNT
 			//(long)(FS2/128.0*2.5*16.0+0.5) == (long)((FS2*40)/128+0.5) == (long)(FS2*40.0+64.0)/128.0)
 			//(FS2*40+64)/128
@@ -338,7 +351,13 @@ BOOL AuPIECEKPI::Open(const char *cszFileName, SOUNDINFO *pInfo)
 			//     ==(long)(3072*auLog(FS2)/auLog(2.0)+1/2);
 			FOFS = (long)(3072.0 * log((double)FS2) / log(2.0) + 0.5);
 
-			VOLS = 1;
+			// VOLS はエンベロープ値の固定小数点の小数部ビット数。
+			// エンベロープ速度は 128 サンプルごとの加算値なので FS2 に反比例して
+			// 小さくなり、VOLS = 1 のままだと整数化の誤差が無視できなくなる
+			// (44.1kHz で最大 45%、96kHz では 0 になってエンベロープが止まる)。
+			// 小数ビットを増やして誤差を 1% 程度に抑える。
+			// pvol/pexp/envwk の和は (82752 << VOLS) 程度なので 32bit に収まる。
+			VOLS = 6;
 
 			// 2003.08.07 Yui N.
 			// ENVSTART と ENVSTOP はレート値ではないので Freq. による調整は不要！

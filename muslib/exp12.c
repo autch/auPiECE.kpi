@@ -108,7 +108,37 @@ static const unsigned char div12t2[256] = {
 unsigned long gexp( int n )
 {
 	int a = (n>>8);
-	int b = div12t1[a];
 
-	return ( expt[b] + ( ( expb[b] * (n&0xff) ) >> 8 ) ) >> div12t2[a];
+	// div12t1[]/div12t2[] は 21*12+4 = 256 エントリしかないため、そのままでは
+	//   a >= 252 (n >= 64512) : div12t2[] のシフト量が 0 で飽和し 1 オクターブ低い値
+	//   a >  255 (n >= 65536) : 表の範囲外
+	// になる (後者は未定義動作)。44.1kHz ではドラム系音色の o8f+ から音程が狂い
+	// 始め、o8a+ 以上は隣接する静的データを読んででたらめな音程になっていた。
+	// 修正前は範囲検査が一切なかった。通常の音域はここで抜ける。
+	// unsigned で比較すれば負値も同じ 1 回の比較で弾ける。
+	if ( (unsigned int)a <= 251 ) {
+		int b = div12t1[a];
+
+		return ( expt[b] + ( ( expb[b] * (n&0xff) ) >> 8 ) ) >> div12t2[a];
+	}
+
+	if ( a < 0 ) return 0;
+
+	// 表に収まるところまで 1 オクターブ (=12) ずつ下げて引き、下げた分を後で戻す。
+	// n&0xff は 12*256 の倍数を引いても変わらないので端数はそのままでよい。
+	{
+		int k = 0;
+
+		do {
+			a -= 12;
+			if ( ++k > 10 ) return 0;		// 32bit に収まらない超高音は表現できない
+		} while ( a > 251 );
+
+		// ここでは a は 240..251 なので div12t2[a] == 0
+		{
+			int b = div12t1[a];
+
+			return (unsigned long)( expt[b] + ( ( expb[b] * (n&0xff) ) >> 8 ) ) << k;
+		}
+	}
 }

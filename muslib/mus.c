@@ -259,13 +259,22 @@ void SetEnv( MDEVICE *mp, int ar, int dr, int sl, int sr )
 #define T1CONST 0x4000
 
 // SK : 可変周波数対応 ビブラートスピード生成関数
+// spd 用。vibwk は signed short で 2^16 を法として回る位相なので、
+// signed short への切り捨て (= 2^16 の剰余) はそのままで正しい。
 static signed short SetVibSpeed2( int n )
 {
-	signed short r;
-
 	// 2003.08.07 Yui N.: これはレート値なので Freq. の調整が必要
-	r = MulDiv(gexp( n * 192 + 8*12*256 ), 16000, FS2);
-	return r;
+	return (signed short)MulDiv(gexp( n * 192 + 8*12*256 ), 16000, FS2);
+}
+
+// t1/t2 用。こちらは T1CONST / vibdpe との >= 比較に使うので、切り捨てで
+// 負値になると比較が成立せずビブラートが暴走する (深さが減り続けて音程が
+// 下がりっぱなしになる)。大きい値の意味は「最速」なので上限で飽和させる。
+static signed short SetVibRate2( int n )
+{
+	long r = MulDiv(gexp( n * 192 + 8*12*256 ), 16000, FS2);
+
+	return (signed short)( r > 32767 ? 32767 : r );
 }
 
 static void GenVibS2( MDEVICE *mp )
@@ -308,8 +317,8 @@ void SetVib( MDEVICE *mp, int depth, int spd, int t1, int t2 )
 	mp->vibdpe = depth * 12 * 8;
 	// SK : 可変周波数に対応した関数を呼び出す
 	mp->vibvv  = SetVibSpeed2( spd );//(signed short)gexp( spd * 192 + 8*12*256 );
-	mp->vibv1  = SetVibSpeed2( t1 );//(signed short)gexp( t1 * 192 + 8*12*256 );
-	mp->vibv2  = SetVibSpeed2( t2 );//(signed short)gexp( t2 * 192 + 8*12*256 );
+	mp->vibv1  = SetVibRate2( t1 );//(signed short)gexp( t1 * 192 + 8*12*256 );
+	mp->vibv2  = SetVibRate2( t2 );//(signed short)gexp( t2 * 192 + 8*12*256 );
 #ifdef DEBUGVIB
 	printf( "SetVib=%d,%d,%d,%d\n", depth, spd, t1, t2 );
 	printf( "vibdpe = %d ", mp->vibdpe );
