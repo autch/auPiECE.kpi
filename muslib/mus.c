@@ -258,6 +258,12 @@ void SetEnv( MDEVICE *mp, int ar, int dr, int sl, int sr )
 
 #define T1CONST 0x4000
 
+// vv (リニア音量) の上限。gexp() は元々テーブルの都合で 65535 止まりで、
+// 波形生成側の d1 * vv >> 8 と (signed short) への格納がその範囲で釣り合って
+// いたが、gexp() のテーブルあふれ修正でこの頭打ちが外れた。呼び出し側で
+// 明示的に抑える。
+#define VVMAX 65535
+
 // SK : 可変周波数対応 ビブラートスピード生成関数
 // spd 用。vibwk は signed short で 2^16 を法として回る位相なので、
 // signed short への切り捨て (= 2^16 の剰余) はそのままで正しい。
@@ -447,6 +453,7 @@ void BuffFree( PCEWAVEINFO *pwi )
 					mp->genenv( mp );
 					vv = ((mp->pvol + mp->pexp + mp->envwk) >> VOLS);
 					if ( vv <= 11 ) vv = 0; else vv = gexp( vv );
+					if ( vv > VVMAX ) vv = VVMAX;
 					mp->genwave( mp, p0, vv, BLKS );
 				}
 			}
