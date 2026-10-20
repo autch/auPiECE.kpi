@@ -1,0 +1,3 @@
+[submodule "libmuslib"]
+	path = libmuslib
+	url = ../libmuslib.git

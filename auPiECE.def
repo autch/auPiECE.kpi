@@ -1,4 +1,4 @@
 LIBRARY		auPiECE
 
 EXPORTS
-	kmp_GetTestModule
+	kpi_CreateInstance
