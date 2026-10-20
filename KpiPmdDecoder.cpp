@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <format>
 #include <string>
 
 #include "kmp_pi.h"
@@ -70,13 +71,14 @@ void KpiPmdDecoder::fillMediaInfo(int32_t rate)
     // 演奏時間は分からず、ループする曲は終わらない。終わる曲は Render() が途中で止まる
     mediainfo_.qwLength = static_cast<UINT64>(-1);
     mediainfo_.qwLoop = static_cast<UINT64>(-1);
+    mediainfo_.qwFadeOut = static_cast<UINT64>(-1); // フェードアウト時間は本体に任せる
     mediainfo_.dwUnitSample = 0;
     // 先頭から演奏し直して読み捨てるので、サンプル単位で正確にシークできる
     mediainfo_.dwSeekableFlags = KPI_MEDIAINFO::SEEK_FLAGS_SAMPLE
         | KPI_MEDIAINFO::SEEK_FLAGS_ACCURATE | KPI_MEDIAINFO::SEEK_FLAGS_ROUGH;
 }
 
-void KpiPmdDecoder::extractTags(IKpiTagInfo* pTagInfo, DWORD dwTagGetFlags) const
+void KpiPmdDecoder::extractTags(IKpiTagInfo* pTagInfo, DWORD dwTagGetFlags, bool extra) const
 {
     // pmd のタイトルは Shift_JIS
     auto set_tag = [pTagInfo](const wchar_t* name, const char* value)
@@ -91,11 +93,25 @@ void KpiPmdDecoder::extractTags(IKpiTagInfo* pTagInfo, DWORD dwTagGetFlags) cons
         pTagInfo->wSetValueW(name, -1, w.c_str(), -1);
     };
 
+    // 本体のタグ取得ルーチンは拡張パートに非対応なので使わないと宣言する
+    pTagInfo->GetTagInfo(nullptr, nullptr, KPI_TAGTYPE_NONE, dwTagGetFlags);
+
     if (dwTagGetFlags & KPI_TAGGET_FLAG_TITLE)
         set_tag(SZ_KMP_NAME_TITLE_W, muslib_title(muslib_.get()));
     // title2 は作曲者・編曲者のクレジットが入っていることが多い
     if (dwTagGetFlags & KPI_TAGGET_FLAG_ARTIST)
         set_tag(SZ_KMP_NAME_ARTIST_W, muslib_title2(muslib_.get()));
+
+    // ここから下は TAG_EXTRA (デコード用に開いたときだけ出す詳細情報)
+    if (!extra)
+        return;
+
+    // P/ECE 本体の muslib より多いパートを使う曲は、拡張した muslib でないと鳴らない
+    const int parts = muslib_num_parts(muslib_.get());
+    const std::wstring value = parts > PIECE_MAX_PARTS
+        ? std::format(L"{} (extended)", parts)
+        : std::format(L"{}", parts);
+    pTagInfo->wSetValueW(L"PMD_NumParts", -1, value.c_str(), -1);
 }
 
 DWORD KpiPmdDecoder::Select(DWORD dwNumber, const KPI_MEDIAINFO** ppMediaInfo, IKpiTagInfo* pTagInfo, DWORD dwTagGetFlags)
@@ -114,7 +130,7 @@ DWORD KpiPmdDecoder::Select(DWORD dwNumber, const KPI_MEDIAINFO** ppMediaInfo, I
     if (ppMediaInfo != nullptr)
         *ppMediaInfo = &mediainfo_;
     if (pTagInfo != nullptr)
-        extractTags(pTagInfo, dwTagGetFlags);
+        extractTags(pTagInfo, dwTagGetFlags, ppMediaInfo != nullptr);
 
     return dwNumber;
 }

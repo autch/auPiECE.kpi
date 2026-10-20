@@ -19,7 +19,7 @@ static constexpr KPI_DECODER_MODULEINFO decoder_info =
     .cszMultiSongExts = nullptr,
     .pvReserved1 = nullptr,
     .pvReserved2 = nullptr,
-    .dwSupportTagInfo = KPI_DECODER_MODULEINFO::TAG_TITLE,
+    .dwSupportTagInfo = KPI_DECODER_MODULEINFO::TAG_TITLE | KPI_DECODER_MODULEINFO::TAG_EXTRA,
     .dwSupportConfig = 0,
     .dwReserved = { 0, 0, 0, 0 }
 };

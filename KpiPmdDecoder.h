@@ -30,6 +30,8 @@ public:
 private:
     // Kb から再生周波数の要求がないとき (1.x の auPiECE.ini の SamplingFrequency の既定値と同じ)
     static constexpr int32_t DEFAULT_SAMPLE_RATE = 44100;
+    // P/ECE 本体の muslib が演奏できるパート数
+    static constexpr int PIECE_MAX_PARTS = 6;
 
     struct FreeDeleter { void operator()(void* p) const { std::free(p); } };
 
@@ -44,5 +46,5 @@ private:
 
     bool fillBlock();
     void fillMediaInfo(int32_t rate);
-    void extractTags(IKpiTagInfo* pTagInfo, DWORD dwTagGetFlags) const;
+    void extractTags(IKpiTagInfo* pTagInfo, DWORD dwTagGetFlags, bool extra) const;
 };

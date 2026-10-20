@@ -45,3 +45,5 @@ Debug/
 Release/
 
 build*/
+BUILD/
+Testing/
