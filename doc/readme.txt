@@ -33,7 +33,7 @@
 //  v1.10 2003.08.07 Yui N.
 //  v1.11 2003.09.05 Yui N.
 //  v1.12 2026.09.02 Autch
-//  v2.00 2026.10.20 Autch
+//  v2.00 2026.10.24 Autch
 //
 
 P/ECE -mobile equipment- の標準音楽ドライバ muslib が使用する pmd 形式フ
