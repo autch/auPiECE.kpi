@@ -1,4 +1,3 @@
-
 /////////////////////////////////////////////////////////////////////////////
 //
 //             /
@@ -11,15 +10,15 @@
 // PIECE LIBRARY : auPiECE.kpi : Ver 2.00
 //
 // Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc. all rights reserved.
-// Copyright (c)2003, 2026 Yui N. (a.k.a. Autch)
+// Copyright (c)2003, 2026 Yui N. (now Autch)
 //
-// Coded by MIO.H (OeRSTED) / Yui N. (Autch.net) / S. Kino. / Kobarin
+// Coded by MIO.H (OeRSTED) / Yui N. (now Autch) / S. Kino. / Kobarin
 //
 // Comments:
 //
-// PIECE 標準音楽ドライバーの KbMedia Player 移植版
+// PIECE �W�����y�h���C�o�[�� KbMedia Player �ڐA��
 //
-// 取扱説明書
+// �戵������
 //
 //  v1.00 2003.02.22 Yui N.
 //  v1.01 2003.02.23 Yui N.
@@ -37,117 +36,94 @@
 //  v2.00 2026.10.20 Autch
 //
 
-P/ECE -mobile equipment- の標準音楽ドライバが使用する pmd 形式ファイルを
-KbMedia Player で再生させるためのプラグインです。対応する拡張子は pmd です。
+P/ECE -mobile equipment- �̕W�����y�h���C�o muslib ���g�p���� pmd �`���t
+�@�C���� KbMedia Player �ōĐ������邽�߂̃v���O�C���ł��B�Ή�����g���q
+�� pmd �ł��B
 
-muslib は，P/ECE 標準音楽ライブラリ muslib のソースをライブラリとして整理し
-直した libmuslib を使っています。
+�����ɂ́Amuslib �̃\�[�X�����C�u�����Ƃ��Đ����������� libmuslib ���g��
+�Ă��܂��B
 
-動作環境
-	KbMedia Player の新しいプラグイン仕様 (kpi_CreateInstance) に対応した
-	KbMedia Player が必要です。x64 版と x86 版があるので，KbMedia Player
-	本体と同じほうを使ってください。
+v2.00 ����AKbMedia Player �̐V�����v���O�C���d�l�ɑΉ����Ă��܂��Bx64 
+�ł� x86 �łǂ���ɂ��Ή����܂��B
 
-再生周波数
-	KbMedia Player の設定の再生周波数で演奏します。指定がないときは 44100Hz
-	です。上限は 96000Hz で，それより高い周波数を指定しても 96000Hz で演奏し
-	ます。
-	Version 1.x の auPiECE.ini (SamplingFrequency / DisableFormatCheck) は
-	読まなくなりました。
+v2.00 ����A�Đ����̋Ȃ̏ڍ׏��ɁApmd �t�@�C���̃p�[�g���� 
+PMD_NumParts �Ƃ��ĕ\�����܂��B7 �p�[�g�ȏ�g���Ă���Ȃɂ� "(extended)" 
+��t���܂��B���̂悤�ȃf�[�^�ٍ͐� mucc-next �ō쐬�ł��܂��BKbMedia 
+Player �{�̂̃^�O�ǂݍ��݋@�\�ł̓p�[�g�g���ɑΉ����Ă��Ȃ��̂ŁA���̃v
+���O�C������舵���܂��B
 
-タイトル
-	pmd に埋め込まれたタイトルを「タイトル」に，サブタイトル (作曲者などの
-	クレジットが入っていることが多い) を「アーティスト」に表示します。
+�Đ����g���͖{�̂��w�肷�郌�[�g�ŉ��t���܂��B�w�肪�Ȃ��Ƃ��� 44100Hz 
+�ł��B����� 96000Hz �ŁA�����荂���l���w�肵�Ă� 96000Hz �ŉ��t���܂��B
 
-演奏時間とシーク
-	pmd には演奏時間の情報がないので，曲の長さは KbMedia Player の設定の
-	デフォルトの曲の長さになります。最後まで演奏すると終わる曲は，そこで演
-	奏を終えます。シークはサンプル単位で正確に行えます (曲の先頭から演奏し
-	直すので，曲の後ろのほうへのシークは少し時間がかかります)。
+�Ȃ̒����ƃt�F�[�h�A�E�g���Ԃ��{�̂̐ݒ�ɏ]���܂��B
 
-pmd データが標準音色セットにない音色を要求しているときは，その音色を無視し
-て直前の音色のまま演奏を続けます。データが壊れていても，pmd の外を読んでク
-ラッシュすることはありません。
+pmd �f�[�^���W�����F�Z�b�g�ɂȂ����F��v�����Ă���Ƃ��́A���̉��F�𖳎�
+���Ē��O�̉��F�̂܂܉��t�𑱂��܂��B
 
-更新履歴
-	Version 1.00	初版
-	Version 1.01	S. Kino. さんによる可変周波数対応化パッチを取り込み
-			コンパイラを Borland C++ Compiler 5.5.1 に変更
-			C ランタイムライブラリを使わないようにした
-			ini ファイルによる再生周波数指定に対応
-	Version 1.02	ループしない曲の演奏終了を検出できるようになった
-	Version 1.03	KbMedia Player 本体からの再生周波数要求に対応
-	Version 1.04	簡単なフォーマットチェックを行うようにした
-			（着メロの pmd ファイルとの競合を回避する）
-	Version 1.05	SOUNDINFO::dwUnitRender の倍数渡しが行われたら
-			そこで演奏終了するようにした（ぉ
-	Version 1.06	のこも Decoder でデコードできないバグを退治
-	Version 1.07	ヴィブラートとデチューンが初期化されない仕様を改良
-	Version 1.08	はらやんさん（http://hara-yan-web.hp.infoseek.co.jp/）
-			のプチノイズ対策を取り込み
-	Version 1.09	Kobarin さんの re-entrant 化パッチを取り込み
-			クロスフェード時のパフォーマンスが向上
-			コンパイラを Visual C++ .NET 2003 に変更し、
-			kernel32.dll 以外には依存しないようにした
-			Pentium Pro 以降用に最適化
-	Version 1.10	可変周波数対応するときに、エンベロープ値の調整を
-			誤っていたバグを修正（今頃気づくなよ）。
-			100% 再現とか大嘘ぶっこいてましたすみません(;´Д｀)
-	Version 1.11	SOUNDINFO::dwUnitRender の倍数渡しにちゃんと対応し、
-			シーク速度が向上した。
-			（KbMP 本体は倍数渡しをしないが、muslib 内部の実装に
-			依存した小さすぎる値を返していたのでシークが遅かった）
-	Version 1.12	ドラム音色のノイズ対策
-			パート数の上限を mucc が出力しうる 26 まで引き上げた
-			高音・ビブラート・ポルタメントの整数あふれを修正
-			可変レートの精度を改善
-			音量が上限を超えたときに波形が反転するのを修正
-			ビルドを CMake に移行した
-	Version 2.00	KbMedia Player の新しいプラグイン仕様で作り直した
-			muslib を libmuslib に置き換えた
-			  (グローバル変数をなくし，同時にいくつでも演奏できる)
-			Unicode のファイル名とアーカイブ内の pmd に対応した
-			pmd のタイトルを表示するようにした
-			サンプル単位のシークに対応した
-			パート数の上限を 32 に引き上げた (mucc-next の上限)
-			存在しない音色番号は無視するようにした (以前はクラッシュ)
-			フォーマットチェックで各パートの開始位置も確かめるようにした
-			auPiECE.ini を読まなくなった
 
-ライセンスについて
-	このプログラムは，P/ECE 標準音楽ライブラリ muslib のソースを改変したも
-	の (libmuslib) を使用しています。元にしたファイルは以下のとおりです
-	(パスは P/ECE SDK のインストール先からの相対)。
-		/usr/piece/sysdev/music/mus.c
-		/usr/piece/sysdev/music/seq.c
-		/usr/piece/sysdev/music/musdef.h
-		/usr/piece/sysdev/music/exp12.c
-		/usr/piece/sysdev/music/instdef.c
-		/usr/piece/sysdev/music/wavetable.c
-		/usr/piece/sysdev/music/wave/i_*.c
-	オリジナルの muslib ライブラリの著作権表示は以下のとおりです。
-		Copyright (C)2001 AQUAPLUS Co., Ltd. / OeRSTED, Inc.
-		all rights reserved.
-		Coded by MIO.H (OeRSTED)
-	これらの改変についてアクアプラスはなんら関係なく，プログラムの内容およ
-	びそれの実行結果について，アクアプラスは一切の責任を負いません。このプ
-	ログラムに関する一切の事柄についてアクアプラスにサポートを求めてはいけ
-	ません。
+�X�V����
+--------
 
-	私およびアクアプラスは，このプログラムを使用したこと，または使用しな
-	かった，使用できなかった事によって発生する，または発生する恐れのある一
-	切の損害について，それらが発生することをあらかじめ知っていたか，あるい
-	は知ることができたとしても，私およびアクアプラスは何らの法的および道義
-	的責任を負いません。
 
-	作者は，このプログラムに存在する，または存在する可能性のある，一切のバ
-	グや欠陥について何ら修正する義務を負いません。使用者は，このプログラム
-	の欠陥によって自らの財産等に損害が出る可能性があることを了承したうえで
-	このプログラムを使用しなければなりません。
+Version 1.00	����
+Version 1.01	S. Kino. ����ɂ��ώ��g���Ή����p�b�`����荞��
+		�R���p�C���� Borland C++ Compiler 5.5.1 �ɕύX
+		C �����^�C�����C�u�������g��Ȃ��悤�ɂ���
+		ini �t�@�C���ɂ��Đ����g���w��ɑΉ�
+Version 1.02	���[�v���Ȃ��Ȃ̉��t�I�������o�ł���悤�ɂȂ���
+Version 1.03	KbMedia Player �{�̂���̍Đ����g���v���ɑΉ�
+Version 1.04	�ȒP�ȃt�H�[�}�b�g�`�F�b�N���s���悤�ɂ���
+		�i�������� pmd �t�@�C���Ƃ̋������������j
+Version 1.05	SOUNDINFO::dwUnitRender �̔{���n�����s��ꂽ��
+		�����ŉ��t�I������悤�ɂ����i��
+Version 1.06	�̂��� Decoder �Ńf�R�[�h�ł��Ȃ��o�O��ގ�
+Version 1.07	���B�u���[�g�ƃf�`���[��������������Ȃ��d�l������
+Version 1.08	�͂��񂳂�ihttp://hara-yan-web.hp.infoseek.co.jp/�j
+		�̃v�`�m�C�Y�΍����荞��
+Version 1.09	Kobarin ����� re-entrant ���p�b�`����荞��
+		�N���X�t�F�[�h���̃p�t�H�[�}���X������
+		�R���p�C���� Visual C++ .NET 2003 �ɕύX���A
+		kernel32.dll �ȊO�ɂ͈ˑ����Ȃ��悤�ɂ���
+		Pentium Pro �ȍ~�p�ɍœK��
+Version 1.10	�ώ��g���Ή�����Ƃ��ɁA�G���x���[�v�l�̒�����
+		����Ă����o�O���C���i�����C�Â��Ȃ�j�B
+		100% �Č��Ƃ���R�Ԃ������Ă܂������݂܂���(;�L�D�M)
+Version 1.11	SOUNDINFO::dwUnitRender �̔{���n���ɂ����ƑΉ����A
+		�V�[�N���x�����サ���B
+		�iKbMP �{�͔̂{���n�������Ȃ����Amuslib �����̎�����
+		�ˑ���������������l��Ԃ��Ă����̂ŃV�[�N���x�������j
+Version 1.12	�h�������F�̃m�C�Y�΍�
+		�p�[�g���̏���� mucc ���o�͂����� 26 �܂ň����グ��
+		�����E�r�u���[�g�E�|���^�����g�̐������ӂ���C��
+		�σ��[�g�̐��x�����P
+		���ʂ�����𒴂����Ƃ��ɔg�`�����]����̂��C��
+		�r���h�� CMake �Ɉڍs����
+Version 2.00	KbMedia Player �̐V�����v���O�C���d�l�ō�蒼��
+		muslib �� libmuslib �ɒu������
+		Unicode �̃t�@�C�����ƃA�[�J�C�u���� pmd �ɑΉ�
+		�p�[�g�g������ pmd �̃^�C�g�����\������悤�ɂ���
+		�p�[�g�����ڍ׏�� (PMD_NumParts) �ɕ\������悤�ɂ���
+		�T���v���P�ʂ̃V�[�N�ɑΉ�
+		�p�[�g���̏���� 32 �Ɉ����グ
+		���݂��Ȃ����F�ԍ��͖�������悤�ɂ���
+		�t�H�[�}�b�g�`�F�b�N�Ŋe�p�[�g�̊J�n�ʒu���m���߂�悤�ɂ���
+		auPiECE.ini ��ǂ܂Ȃ��Ȃ���
 
-	これら以外については，P/ECE デフォルトのフリーソフトの扱いに準じます。
 
-----------------------------------------
-Yui N. (a.k.a. Autch)
-yui@autch.net
-http://www.autch.net/
+
+���C�Z���X
+----------
+
+���̃v���O�����́AP/ECE �W�����y���C�u���� muslib �̃\�[�X�����ς������� 
+(libmuslib) ���g�p���Ă��܂��B�A�N�A�v���X�ɂ��u�t���\�[�X�����ɂ����v
+���O�����̍Ĕz�z�̈����ɂ��āv�Ɋ�Â������C�Z���X�\�L�� 
+LICENSE-PIECE.md �ɁA����ȊO�ɂ��Ă� MIT ���C�Z���X�Ƃ��܂��B
+
+���̃v���O�C���� libmuslib �ȊO�̕����� MIT ���C�Z���X�Ƃ��܂��B
+
+
+
+---
+Autch
+autch@autch.net
+https://www.autch.net/

@@ -68,3 +68,8 @@ node tools/golden.mjs check --set <テストセット> --pmd-dir <pmd のディ�
 ```
 
 Wine で試すときは、`wine kpi-render.exe "$@"` を実行するシェルスクリプトを `--cli` に渡す。
+
+## ライセンス
+
+MIT License ([LICENSE](LICENSE))。ただし libmuslib のうち P/ECE 標準音楽ライブラリ muslib を元にした部分は、
+アクアプラスによる再配布の扱いに従う ([libmuslib/LICENSE-PIECE.md](libmuslib/LICENSE-PIECE.md))。

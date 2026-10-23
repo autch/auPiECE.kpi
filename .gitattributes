@@ -1,0 +1,2 @@
+# KbMedia Player のビューアで読めるように Shift_JIS / CRLF のまま置く (改行を変換しない)
+doc/readme.txt -text
